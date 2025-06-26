@@ -1,21 +1,15 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <div class="login-header">
-        <h1>Login</h1>
-        <p>请输入您的账号信息</p>
+  <div class="register-page">
+    <div class="register-container">
+      <div class="register-header">
+        <h1>注册您的账号</h1>
+        <p>Register your account.</p>
       </div>
 
-      <div class="login-form">
+      <div class="register-form">
         <div class="form-group">
           <label for="username">用户名</label>
-          <input
-            type="text"
-            id="username"
-            v-model="username"
-            placeholder="请输入用户名"
-            class="form-input"
-          />
+          <input type="text" id="username" v-model="username" placeholder="" class="form-input" />
         </div>
 
         <div class="form-group">
@@ -24,23 +18,12 @@
             type="password"
             id="password"
             v-model="password"
-            placeholder="请输入密码"
+            placeholder=""
             class="form-input"
           />
         </div>
 
-        <div class="form-options">
-          <label class="remember-me">
-            <input type="checkbox" />
-            <span>记住我</span>
-          </label>
-        </div>
-
-        <button class="login-button" @click="mockLogin">登录</button>
-      </div>
-
-      <div class="login-footer">
-        <p>还没有账号? <router-link to="/register" class="register-link">立即注册</router-link></p>
+        <button class="register-button" @click="mockRegister">注册</button>
       </div>
     </div>
   </div>
@@ -48,7 +31,7 @@
 
 <script lang="ts">
 export default {
-  name: 'LoginView',
+  name: 'RegisterView',
   data() {
     return {
       username: '',
@@ -56,14 +39,15 @@ export default {
     }
   },
   methods: {
-    mockLogin() {
-      if(this.username && this.password) {
-        this.$router.push('/');
+    mockRegister() {
+      if (this.username && this.password) {
+        alert('已完成注册！')
+        this.$router.push('/login')
       } else {
-        alert('please');
+        alert('please')
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -74,16 +58,20 @@ export default {
   padding: 0;
 }
 
-.login-page {
+.register-page {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  width: 100vw;
   min-height: 100vh;
+  box-sizing: border-box;
+
   background-color: #f8f9fa;
   font-family: 'Arial', sans-serif;
 }
 
-.login-container {
+.register-container {
   width: 100%;
   max-width: 400px;
   padding: 40px;
@@ -92,18 +80,18 @@ export default {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.login-header {
+.register-header {
   text-align: center;
   margin-bottom: 30px;
 }
 
-.login-header h1 {
+.register-header h1 {
   color: #333;
   font-size: 24px;
   margin-bottom: 10px;
 }
 
-.login-header p {
+.register-header p {
   color: #666;
   font-size: 14px;
 }
@@ -131,7 +119,7 @@ export default {
 
 .form-input:focus {
   outline: none;
-  border-color: #9DD8FF;
+  border-color: #9dd8ff;
 }
 
 .form-options {
@@ -142,18 +130,7 @@ export default {
   font-size: 13px;
 }
 
-.remember-me {
-  display: flex;
-  align-items: center;
-  color: #555;
-  cursor: pointer;
-}
-
-.remember-me input {
-  margin-right: 5px;
-}
-
-.login-button {
+.register-button {
   width: 100%;
   padding: 12px;
   background-color: #61b6ef;
@@ -162,28 +139,20 @@ export default {
   border-radius: 6px;
   font-size: 16px;
   font-weight: 500;
+  margin-top: 47px;
+  margin-bottom: 47px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.login-button:hover {
+.register-button:hover {
   background-color: #3367d6;
 }
 
-.login-footer {
+.register-footer {
   text-align: center;
   margin-top: 25px;
   color: #666;
   font-size: 14px;
-}
-
-.register-link {
-  color: #4285f4;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.register-link:hover {
-  text-decoration: underline;
 }
 </style>

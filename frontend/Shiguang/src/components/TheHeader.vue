@@ -42,15 +42,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Component } from 'vue';
-import SearchIcon from './icons/SearchIcon.vue';
-import SettingIcon from './icons/SettingIcon.vue';
-import { defineAsyncComponent } from 'vue';
+import { ref, type Component } from 'vue'
+import SearchIcon from './icons/SearchIcon.vue'
+import SettingIcon from './icons/SettingIcon.vue'
+import { defineAsyncComponent } from 'vue'
 
 // 定义导航图标类型
 interface NavIcon {
-  name: string;
-  component?: Component; // 这里插入你的SVG组件
+  name: string
+  component?: Component // 这里插入你的SVG组件
 }
 
 // 模拟导航图标数据
@@ -58,20 +58,20 @@ const navIcons = ref<NavIcon[]>([
   { name: 'home', component: defineAsyncComponent(() => import('./icons/HomeIcon.vue')) },
   { name: 'edit', component: defineAsyncComponent(() => import('./icons/EditIcon.vue')) },
   { name: 'mail', component: defineAsyncComponent(() => import('./icons/MailIcon.vue')) },
-  { name: 'users', component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue')) }
-]);
+  { name: 'users', component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue')) },
+])
 
-const searchQuery = ref('');
+const searchQuery = ref('')
 
 const handleSearch = () => {
   // 处理搜索逻辑
-  console.log('搜索:', searchQuery.value);
-};
+  console.log('搜索:', searchQuery.value)
+}
 
 const handleNavClick = (icon: NavIcon) => {
   // 处理导航点击事件
-  console.log('导航点击:', icon.name);
-};
+  console.log('导航点击:', icon.name)
+}
 </script>
 
 <style scoped>
@@ -121,7 +121,7 @@ const handleNavClick = (icon: NavIcon) => {
 .nav-icons {
   display: flex;
   align-items: stretch;
-  gap:7rem;
+  gap: 7rem;
   margin-left: auto;
   margin-right: auto;
   transition: all 0.3s ease-in-out;
@@ -143,7 +143,7 @@ const handleNavClick = (icon: NavIcon) => {
   transition: all 0.3s ease-in-out;
 }
 
-.nav-icon-btn{
+.nav-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,11 +158,11 @@ const handleNavClick = (icon: NavIcon) => {
   z-index: 1001;
 }
 
-.nav-icon-btn:hover{
-  background-color:#e0e0e0;
+.nav-icon-btn:hover {
+  background-color: #e0e0e0;
 }
 
-.nav-icon-btn:active{
+.nav-icon-btn:active {
   background-color: #cccccc;
 }
 
@@ -186,7 +186,7 @@ const handleNavClick = (icon: NavIcon) => {
   transform: scaleY(1);
 }
 
-.nav-icon-btn:active::after{
+.nav-icon-btn:active::after {
   opacity: 1;
   transform: scaleY(1);
 }
@@ -204,17 +204,17 @@ const handleNavClick = (icon: NavIcon) => {
   transition: all 0.3s ease-in-out;
 }
 
-.settings-btn:hover{
+.settings-btn:hover {
   background-color: #e0e0e0;
-  transform:scale(1.1);
+  transform: scale(1.1);
 }
 
-.settings-btn:active{
+.settings-btn:active {
   background-color: #cccccc;
   transform: scale(1);
 }
 
-*{
+* {
   box-sizing: border-box;
 }
 

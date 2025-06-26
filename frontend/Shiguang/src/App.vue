@@ -1,23 +1,31 @@
-<<<<<<< HEAD
+<script setup lang="ts">
+import TheHeader from './components/TheHeader.vue'
+</script>
+
 <template>
   <div id="app">
+    <TheHeader v-if="!['/login', '/register'].includes($route.path)" />
     <router-view></router-view>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'App'
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-</script>
-=======
-<script setup lang="ts">
-import TheWelcome from './components/TheHeader.vue'
-</script>
 
-<template>
-  <main>
-    <TheWelcome />
-  </main>
-</template>
->>>>>>> 1082a83b3c6fbb5034bb1b427acf8366aa47d207
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+}
+#app {
+  width: 100%;
+  height: 100%;
+}
+</style>
