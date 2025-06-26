@@ -20,8 +20,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import routers
-from drf_spectacular.views import SpectacularAPIView,SpectacularSwaggerView
-
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 router = routers.DefaultRouter()
 
@@ -31,5 +30,8 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/",include(router.urls)),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs',SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui')
+    path('api/docs/',SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/users/', include('users.urls')),
+    path('api/register/',include('register.urls')),
 ]

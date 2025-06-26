@@ -41,6 +41,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'nginx']
 # Application definition
 
 INSTALLED_APPS = [
+    "simpleui",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "channels",
     "users",
+    "register",
 ]
 
 MIDDLEWARE = [
@@ -123,13 +125,21 @@ AUTH_USER_MODEL = "users.User"
 
 
 #CORS
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',   # 前端地址
+    'http://127.0.0.1:5173',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:5173",  # 前端地址
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
 
 
 # Password validation
@@ -154,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "zh-hans"
 
 TIME_ZONE = "UTC"
 
