@@ -36,7 +36,9 @@
           </label>
         </div>
 
-        <button class="login-button" @click="mockLogin">登录</button>
+        <button class="login-button" @click="mockLogin">
+          {{ loading ? '登陆中...' : '登录' }}
+        </button>
       </div>
 
       <div class="login-footer">
@@ -47,20 +49,71 @@
 </template>
 
 <script lang="ts">
+import { useRouter } from 'vue-router'
+import api from '@/api'
+import { isAxiosError } from 'axios'
+import { ElNotification } from 'element-plus'
+
 export default {
   name: 'LoginView',
   data() {
     return {
       username: '',
       password: '',
+      loading: false,
+      error: '',
     }
   },
+  setup() {
+    const router = useRouter()
+    return { router }
+  },
   methods: {
-    mockLogin() {
-      if (this.username && this.password) {
-        this.$router.push('/')
-      } else {
-        alert('please')
+    async mockLogin() {
+      if (!this.username || !this.password) {
+        this.error = '请输入用户名和密码！'
+        ElNotification({
+          title: '登陆失败',
+          message: '请填写用户名和密码',
+          position: 'top-right',
+          type: 'error',
+        })
+        return
+      }
+
+      this.loading = true
+      this.error = ''
+      try {
+        const response = await api.login({ username: this.username, password: this.password })
+        console.log('登陆成功', response.data)
+        localStorage.setItem('token', response.data.access)
+        ElNotification({
+          title: '登陆成功',
+          message: '正在进入首页...',
+          position: 'top-right',
+          type: 'success',
+        })
+        this.router.push('/')
+      } catch (err: unknown) {
+        console.error('登录失败:', err)
+        if (isAxiosError(err)) {
+          if (err.response && err.response.data) {
+            this.error = err.response.data.message || '登录失败，请重试'
+          } else {
+            this.error = '网络错误，请检查连接'
+          }
+        } else {
+          this.error = '未知错误'
+        }
+
+        ElNotification({
+          title: '登陆失败',
+          message: this.error,
+          position: 'top-right',
+          type: 'error',
+        })
+      } finally {
+        this.loading = false
       }
     },
   },

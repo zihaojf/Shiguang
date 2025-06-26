@@ -4,7 +4,7 @@ import TheHeader from './components/TheHeader.vue'
 
 <template>
   <div id="app">
-    <TheHeader v-if="!['/login', '/register'].includes($route.path)" />
+    <TheHeader v-if="!['/login', '/register', '/login/', '/register/'].includes($route.path)" />
     <router-view></router-view>
   </div>
 </template>
