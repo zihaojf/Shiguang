@@ -86,6 +86,7 @@ const handleNavClick = (icon: NavIcon) => {
   justify-content: space-between;
   align-items: center;
   padding: 0rem 8rem;
+  background: white;
   border-bottom: 4px solid #f0f0f0;
   transition: all 0.3s ease-in-out;
   box-sizing: border-box;
