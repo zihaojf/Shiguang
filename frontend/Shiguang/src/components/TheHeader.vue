@@ -20,7 +20,8 @@
         :icon="icon"
         @click="handleNavClick(icon)"
       >
-        <button class="nav-icon-btn">
+        <button class="nav-icon-btn"
+        :class="{ 'active': icon.active }">
           <component :is="icon.component" v-if="icon.component" />
         </button>
       </nav-icon>
@@ -45,17 +46,19 @@
 import { ref, type Component } from 'vue'
 import SearchIcon from './icons/SearchIcon.vue'
 import SettingIcon from './icons/SettingIcon.vue'
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent,watchEffect } from 'vue'
+import {useRouter,useRoute} from 'vue-router'
 
 // 定义导航图标类型
 interface NavIcon {
   name: string
   component?: Component // 这里插入你的SVG组件
+  active?:boolean
 }
 
 // 模拟导航图标数据
 const navIcons = ref<NavIcon[]>([
-  { name: 'home', component: defineAsyncComponent(() => import('./icons/HomeIcon.vue')) },
+  { name: 'Home', component: defineAsyncComponent(() => import('./icons/HomeIcon.vue')) },
   { name: 'edit', component: defineAsyncComponent(() => import('./icons/EditIcon.vue')) },
   { name: 'mail', component: defineAsyncComponent(() => import('./icons/MailIcon.vue')) },
   { name: 'users', component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue')) },
@@ -68,10 +71,24 @@ const handleSearch = () => {
   console.log('搜索:', searchQuery.value)
 }
 
+// 路由控制
+const router = useRouter()
+const route=useRoute()
+
+// 点击导航跳转
 const handleNavClick = (icon: NavIcon) => {
-  // 处理导航点击事件
-  console.log('导航点击:', icon.name)
+  router.push({ name: icon.name })
 }
+
+// 监听路由变化，自动更新 active 状态
+watchEffect(() => {
+  const currentName = route.name as string
+
+  navIcons.value.forEach(icon => {
+    icon.active = icon.name === currentName
+  })
+})
+
 </script>
 
 <style scoped>
@@ -121,7 +138,7 @@ const handleNavClick = (icon: NavIcon) => {
 .nav-icons {
   display: flex;
   align-items: stretch;
-  gap: 7rem;
+  gap: 5rem;
   margin-left: auto;
   margin-right: auto;
   transition: all 0.3s ease-in-out;
@@ -169,7 +186,7 @@ const handleNavClick = (icon: NavIcon) => {
 .nav-icon-btn::after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: -2px;
   left: 0;
   width: 100%;
   height: 4px;
@@ -181,14 +198,21 @@ const handleNavClick = (icon: NavIcon) => {
   transition-delay: 0.1s;
 }
 
-.nav-icon-btn:hover::after {
+.nav-icon-btn:hover::after{
   opacity: 1;
   transform: scaleY(1);
 }
 
-.nav-icon-btn:active::after {
+.nav-icon-btn:active::after{
   opacity: 1;
-  transform: scaleY(1);
+  transform:scaleY(1);
+  background-color: #ff9f43;
+}
+
+.nav-icon-btn.active::after{
+  opacity: 1;
+  transform:scaleY(1);
+  background-color: #ff9f43;
 }
 
 .settings-btn {
@@ -201,7 +225,7 @@ const handleNavClick = (icon: NavIcon) => {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.15s ease-in-out;
 }
 
 .settings-btn:hover {
