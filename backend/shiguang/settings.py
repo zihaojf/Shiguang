@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     "channels",
     "users",
     "register",
+    "posts",
+    "comments",
 ]
 
 MIDDLEWARE = [
@@ -113,12 +115,15 @@ CHANNEL_LAYERS = {
     },
 }
 
-#JWT
+#DRF & JWT & spectacular
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES': (
+        'users.renderers.ApiRenderer',
+    ),
 }
 
 AUTH_USER_MODEL = "users.User"
@@ -126,15 +131,15 @@ AUTH_USER_MODEL = "users.User"
 
 #CORS
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',   # 前端地址
-    'http://127.0.0.1:5173',
+    'http://localhost:5174',   # 前端地址
+    'http://127.0.0.1:5174',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:5173",  # 前端地址
-    "http://127.0.0.1:5173",
+    "http://localhost:5174",  # 前端地址
+    "http://127.0.0.1:5174",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
 ]
