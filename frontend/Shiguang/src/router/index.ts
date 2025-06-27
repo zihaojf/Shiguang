@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePageView from '@/views/HomeView.vue'
 import LoginPageView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import EditWindow from '@/views/EditWindow.vue'
 import TestPostView from '@/views/testPostView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import PostView from '@/views/PostView.vue'
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+    },
+    {
+      path:'/edit',
+      name:'edit',
+      component:EditWindow,
     },
     {
       path: '/test-post',
