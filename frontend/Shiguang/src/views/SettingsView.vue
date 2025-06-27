@@ -7,7 +7,7 @@
           class="nav-item"
           active-class="active"
         >
-          <i class="icon">👤</i>
+          <el-icon><User /></el-icon>
           <span>个人资料</span>
         </router-link>
 
@@ -16,7 +16,7 @@
           class="nav-item"
           active-class="active"
         >
-          <i class="icon">🔒</i>
+          <el-icon><Lock /></el-icon>
           <span>安全</span>
         </router-link>
       </nav>
@@ -33,7 +33,7 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'SettingsView'
+  name: 'SettingsView',
 })
 </script>
 
@@ -79,9 +79,11 @@ export default defineComponent({
   border-right: 3px solid #1a73e8;
 }
 
-.nav-item .icon {
+.nav-item .el-icon {
   margin-right: 12px;
   font-size: 1.1rem;
+  width: 1em;
+  height: 1em;
 }
 
 .settings-content {
