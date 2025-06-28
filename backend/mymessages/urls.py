@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 
-router.register(r'', MessageViewSet, basename='mymessages')
+router.register(r'', MessageViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
