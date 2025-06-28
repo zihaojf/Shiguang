@@ -34,7 +34,7 @@
           <svg-icon name="user" />
         </slot>
       </div>
-      <button class="settings-btn">
+      <button class="settings-btn" @click="handleSettingClick">
         <SettingIcon />
         <svg-icon name="settings" />
       </button>
@@ -74,6 +74,10 @@ const handleSearch = () => {
 // 路由控制
 const router = useRouter()
 const route=useRoute()
+
+const handleSettingClick = () =>{
+  router.push('settings')
+}
 
 // 点击导航跳转
 const handleNavClick = (icon: NavIcon) => {
@@ -235,6 +239,11 @@ watchEffect(() => {
 }
 
 .settings-btn:active {
+  background-color: #cccccc;
+  transform: scale(1);
+}
+
+.settings-btn.active {
   background-color: #cccccc;
   transform: scale(1);
 }
