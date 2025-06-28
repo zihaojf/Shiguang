@@ -2,28 +2,29 @@
 from rest_framework import status,viewsets
 from rest_framework.response import Response
 from .models import Group,GroupMember,Message
-from .serializers import GroupSerializer, GroupMemberSerializer, MessageSerializer
+from .serializers import GroupsSerializer, GroupMembersSerializer, MessagesSerializer
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.conf import  settings
+from django.contrib.auth import get_user_model
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
-    serializer_class = GroupSerializer
+    serializer_class = GroupsSerializer
     permission_classes = (IsAuthenticated,)
 
 
 class GroupMemberViewSet(viewsets.ModelViewSet):
     queryset = GroupMember.objects.all()
-    serializer_class = GroupMemberSerializer
+    serializer_class = GroupMembersSerializer
     permission_classes = (IsAuthenticated,)
 
 
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
-    serializer_class = MessageSerializer
+    serializer_class = MessagesSerializer
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
@@ -38,14 +39,14 @@ class MessageViewSet(viewsets.ModelViewSet):
         # 群聊
         if group_id:
             try:
-                group = Group.objects.get(id=group_id)
+                group = Group.objects.filter(id=group_id)
             except Group.DoesNotExist:
                 return Response({'detail':'未找到该群聊'},status.HTTP_404_NOT_FOUND)
 
         else :
             group = None
 
-        serializer.save(sender=settings.AUTH_USER_MODEL, receiver=receiver, group=group)
+        serializer.save(sender=self.request.user, receiver=receiver, group=group)
 
 
 
