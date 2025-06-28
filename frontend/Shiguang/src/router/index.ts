@@ -1,14 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePageView from '@/views/HomeView.vue'
+
+//登录和注册界面
 import LoginPageView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+
+//页眉导航可跳转的界面
+import HomePageView from '@/views/HomeView.vue'
 import EditWindow from '@/views/EditWindow.vue'
-import TestPostView from '@/views/testPostView.vue'
-import ProfileView from '@/views/ProfileView.vue'
-import PostView from '@/views/PostView.vue'
+import MailWindow from '@/views/MailWindow.vue'
+import UsersWindow from '@/views/FriendWindow.vue'
 import SettingsView from '@/views/SettingsView.vue'
-import ProfileSettings from '@/components/ProfileSettings.vue'
-import SecuritySettings from '@/components/SecuritySettings.vue'
+
+//子界面
+import ProfileView from '@/views/ProfileView.vue'//查看个人资料
+import PostView from '@/views/PostView.vue'//查看帖子
+import ProfileSettings from '@/components/ProfileSettings.vue'//设置个人资料
+import SecuritySettings from '@/components/SecuritySettings.vue'//设置个人安全信息
+
+//测试用，不重要
+import TestPostView from '@/views/testPostView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +42,16 @@ const router = createRouter({
       path:'/edit',
       name:'edit',
       component:EditWindow,
+    },
+    {
+      path:'/mail',
+      name:'mail',
+      component:MailWindow,
+    },
+    {
+      path:'/users',
+      name:'users',
+      component:UsersWindow,
     },
     {
       path: '/test-post',
