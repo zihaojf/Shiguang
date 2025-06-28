@@ -76,7 +76,7 @@ const router = useRouter()
 const route=useRoute()
 
 const handleSettingClick = () =>{
-  router.push('settings')
+  router.push('/settings')
 }
 
 // 点击导航跳转

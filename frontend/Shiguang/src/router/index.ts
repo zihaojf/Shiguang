@@ -10,12 +10,14 @@ import EditWindow from '@/views/EditWindow.vue'
 import MailWindow from '@/views/MailWindow.vue'
 import UsersWindow from '@/views/FriendWindow.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import ProfileView from '@/views/ProfileView.vue'//查看个人资料
 
 //子界面
-import ProfileView from '@/views/ProfileView.vue'//查看个人资料
 import PostView from '@/views/PostView.vue'//查看帖子
 import ProfileSettings from '@/components/ProfileSettings.vue'//设置个人资料
 import SecuritySettings from '@/components/SecuritySettings.vue'//设置个人安全信息
+import CommentsOnSelf from '@/components/CommentsOnSelf.vue'//查看他人对自己的评论
+import LikeList from '@/components/LikeList.vue'//查看点赞自己的用户
 
 //测试用，不重要
 import TestPostView from '@/views/testPostView.vue'
@@ -47,6 +49,22 @@ const router = createRouter({
       path:'/mail',
       name:'mail',
       component:MailWindow,
+      children:[
+        {
+          path:'/comment',
+          component:CommentsOnSelf,
+          meta:{title:'zzz'}
+        },
+        {
+          path:'/likelist',
+          component:LikeList,
+          meta:{title:'zzz'}
+        },
+        {
+          path: '',
+          redirect: '/mail/comment'
+        }
+      ]
     },
     {
       path:'/users',
