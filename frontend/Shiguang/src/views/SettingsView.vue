@@ -31,9 +31,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import {User, Lock} from '@element-plus/icons-vue'
 
 export default defineComponent({
   name: 'SettingsView',
+  components: {
+    User,
+    Lock
+  }
 })
 </script>
 

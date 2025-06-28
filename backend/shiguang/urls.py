@@ -36,4 +36,5 @@ urlpatterns = [
     path('api/register/',include('register.urls')),
     path('api/posts/',include('posts.urls')),
     path('api/comments/',include('comments.urls')),
+    path('api/mymessages/',include('mymessages.urls')),
 ]

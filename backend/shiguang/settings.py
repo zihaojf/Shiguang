@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "register",
     "posts",
     "comments",
+    "mymessages",
 ]
 
 MIDDLEWARE = [

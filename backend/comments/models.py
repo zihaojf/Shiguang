@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE,verbose_name="所属帖子")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE,verbose_name="所属帖子",related_name="comments")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,verbose_name="评论者")
     parent_comment = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,related_name='children',verbose_name='父评论 ')
     content = models.TextField(verbose_name='评论内容')
