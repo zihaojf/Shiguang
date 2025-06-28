@@ -1,105 +1,123 @@
 <template>
   <div class="posts-container" :class="containerClass" :style="containerStyle">
-    <div v-if="processedPosts.length > 0">
+    <div v-if="posts.length > 0">
       <div
-        v-for="post in processedPosts"
+        v-for="post in posts"
         :key="post.id"
         class="post-card"
       >
         <!-- 点击标题进入帖子 -->
         <div class="post-header" @click="navigateToPost(post.id)">
+          <div class="publisher-info">
+            <img
+              v-if="post.publisher.avatar"
+              :src="post.publisher.avatar"
+              class="avatar"
+              alt="用户头像"
+            >
+            <div v-else class="avatar-placeholder">
+              {{ post.publisher.nickname?.charAt(0) || post.publisher.username?.charAt(0) || '?' }}
+            </div>
+            <span class="publisher-name">
+              {{ post.publisher.nickname || post.publisher.username }}
+            </span>
+            <span class="post-time">{{ formatTime(post.created_at) }}</span>
+          </div>
           <h3 class="post-title">{{ post.title }}</h3>
           <p class="post-content">{{ post.content }}</p>
         </div>
 
         <!-- 点赞和评论区域（单独交互） -->
         <div class="post-stats">
-          <span class="stat-item" @click.stop="handleLike(post.id)">
+          <span class="stat-item" @click.stop="handleLike(post)">
             <i class="icon-like">👍</i> {{ post.likes }}
           </span>
-          <span class="stat-item" @click.stop="handleComment(post.id)">
+          <span class="stat-item" @click.stop="handleComment(post)">
             <i class="icon-comment">💬</i> {{ post.comments }}
           </span>
         </div>
       </div>
     </div>
+    <div v-else class="no-posts">
+      暂无帖子
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { useRouter } from 'vue-router';
+import { defineComponent, PropType } from 'vue'
+import { useRouter } from 'vue-router'
+
+interface Publisher {
+  id: number
+  username: string
+  nickname: string
+  avatar: string | null
+}
 
 interface Post {
   id: number
+  publisher: Publisher
   title: string
   content: string
   likes: number
   comments: number
+  created_at: string
+  updated_at: string
 }
 
-export default {
+export default defineComponent({
   name: 'ThePost',
   props: {
     posts: {
-      type: Array as () => Partial<Post>[],
+      type: Array as PropType<Post[]>,
+      required: true,
       default: () => []
     },
-    userId: String,
-    containerClass: String,
-    containerStyle: Object,
-    likes: Number,
-    comments: Number,
+    containerClass: {
+      type: String,
+      default: ''
+    },
+    containerStyle: {
+      type: Object,
+      default: () => ({})
+    },
     maxLines: {
       type: Number,
       default: 2
     }
   },
-  data() {
-    return {
-      loading: false,
-      error: null,
-    }
-  },
-  setup(props) {
-    const router =useRouter()
+  emits: ['like', 'comment', 'navigate'],
+  setup(props, { emit }) {
+    const router = useRouter()
 
-    // 临时数据处理方法
-    const processPosts = (rawPosts: Partial<Post>[]): Post[] => {
-      return rawPosts.map(post => ({
-        id: post.id || Math.floor(Math.random() * 1000),
-        title: post.title || '默认标题',
-        content: post.content || '默认内容',
-        likes: post.likes || 0,
-        comments: post.comments || 0
-      }))
+    // 格式化时间
+    const formatTime = (timeString: string) => {
+      return new Date(timeString).toLocaleString()
     }
 
     // 点击事件处理
     const navigateToPost = (postId: number) => {
-      console.log('跳转到帖子:', postId)
-      router.push('/post')
+      emit('navigate', postId)
+      router.push(`/post/${postId}`)
     }
 
-    const handleLike = (postId: number) => {
-      console.log('点赞帖子:', postId)
-      // 临时效果：直接在前端增加点赞数
-      // 实际应用中这里应该调用API
+    const handleLike = (post: Post) => {
+      emit('like', post)
     }
 
-    const handleComment = (postId: number) => {
-      console.log('评论帖子:', postId)
-      // 可以跳转到评论区域或打开评论框
+    const handleComment = (post: Post) => {
+      emit('comment', post)
     }
 
     return {
+      formatTime,
       navigateToPost,
       handleLike,
-      handleComment,
-      processedPosts: processPosts(props.posts)
+      handleComment
     }
   }
-}
-
+})
 </script>
 
 <style scoped>
@@ -121,7 +139,7 @@ export default {
   transition: all 0.3s ease;
 }
 
-.post-card :hover {
+.post-card:hover {
   color: #68a4e8;
   text-decoration: underline;
   cursor: pointer;
@@ -155,15 +173,54 @@ export default {
   display: flex;
   align-items: center;
   gap: 5px;
+  cursor: pointer;
+}
+
+.stat-item:hover {
+  color: #68a4e8;
 }
 
 .icon-like, .icon-comment {
   font-size: 1rem;
 }
 
+.publisher-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.avatar, .avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.publisher-name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.post-time {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
 @media (max-width: 768px) {
   .post-content {
-    -webkit-line-clamp: v-bind("Math.min(maxLines , 3)");
+    -webkit-line-clamp: v-bind("Math.min(maxLines, 3)");
   }
 }
 </style>
