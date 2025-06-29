@@ -15,6 +15,14 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,verbose_name="发布时间")
     updated_at = models.DateTimeField(auto_now=True,verbose_name="更新时间")
 
+    #多媒体
+    image = models.ImageField(
+        upload_to='post_images/',
+        blank=True,
+        null=True,
+        verbose_name='动态图片'
+    )
+
     @property
     def likes_count(self):
         return self.likes.count()

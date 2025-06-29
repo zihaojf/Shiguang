@@ -12,4 +12,7 @@ class Friendship(models.Model):
     updated_at = models.DateTimeField(auto_now=True,verbose_name="更新时间")
     remark = models.CharField(max_length=60,blank=True,null=True,verbose_name='好友备注')
 
+    class Meta:
+        verbose_name = "好友关系"
+        verbose_name_plural = verbose_name
 
