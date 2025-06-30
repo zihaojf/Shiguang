@@ -1,5 +1,7 @@
 import axios from 'axios'
 import type { AxiosInstance,AxiosResponse } from 'axios'
+import router from '@/router'
+import apiClient from './axiosConfig'
 
 // 定义请求和响应类型
 interface LoginRequest {
@@ -55,11 +57,30 @@ interface User {
   register_at: string;
 }
 
-// 创建 axios 实例
-const apiClient: AxiosInstance = axios.create({
-  baseURL: 'http://8.148.22.202:8000', // Django 后端地址
-  timeout: 5000,
-})
+export interface Post {
+  id: number;
+  publisher: User;
+  title: string;
+  content: string;
+  image: string | null;
+  likes_count: number;
+  comments_count: number;
+  created_at: string;
+  updated_at: string;
+  visibility: "public" | "friend" | "private"; // Based on the data, seems to be these values
+}
+
+interface PostRequest {
+  status: string;
+  code: number;
+  data: Post[];
+}
+
+// // 创建 axios 实例
+// const apiClient: AxiosInstance = axios.create({
+//   baseURL: 'http://8.148.22.202:8000', // Django 后端地址
+//   timeout: 5000,
+// })
 
 export default {
   // 登录接口
@@ -68,25 +89,21 @@ export default {
   },
 
   // 获取用户个人资料接口
-  getuser_profile(token: string) {
-    return apiClient.get('/api/users/', {
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    })
+  getuser_profile() {
+    return apiClient.get('/api/users/')
+  },
+
+  //修改更新用户个人资料接口
+  updateuser_profile(token: string, data: FormData) {
+    return apiClient.patch('/api/users/{id}', data)
   },
 
   // 发布帖子接口
-  post(data: PostRequest, token: string) {
-    return apiClient.post<PostResponse>('/api/posts/', data,{
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-    )
+  post(data: PostRequest) {
+    return apiClient.post<PostResponse>('/api/posts/', data)
   },
   // 获取动态列表
-async getPosts(token: string): Promise<PostData[]> {
+async getPosts(): Promise<Post[]> {
   try {
     const response = await apiClient.get<PostRequest>('/api/posts/', {
     });
