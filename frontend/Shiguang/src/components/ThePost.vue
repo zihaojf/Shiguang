@@ -6,20 +6,20 @@
         :key="post.id"
         class="post-card"
       >
-        <!-- 点击标题进入帖子 -->
+        <!-- 点击标题进入帖子详情 -->
         <div class="post-header" @click="navigateToPost(post.id)">
           <div class="publisher-info">
             <img
-              v-if="post.publisher.avatar"
+              v-if="post.publisher?.avatar"
               :src="post.publisher.avatar"
               class="avatar"
               alt="用户头像"
             >
             <div v-else class="avatar-placeholder">
-              {{ post.publisher.nickname?.charAt(0) || post.publisher.username?.charAt(0) || '?' }}
+              {{ post.publisher?.nickname?.charAt(0) || post.publisher?.username?.charAt(0) || '?' }}
             </div>
             <span class="publisher-name">
-              {{ post.publisher.nickname || post.publisher.username }}
+              {{ post.publisher?.nickname || post.publisher?.username }}
             </span>
             <span class="post-time">{{ formatTime(post.created_at) }}</span>
           </div>
@@ -27,13 +27,13 @@
           <p class="post-content">{{ post.content }}</p>
         </div>
 
-        <!-- 点赞和评论区域（单独交互） -->
+        <!-- 点赞和评论区域 -->
         <div class="post-stats">
           <span class="stat-item" @click.stop="handleLike(post)">
-            <i class="icon-like">👍</i> {{ post.likes }}
+            <i class="icon-like">👍</i> {{ post.likes_count || 0 }}
           </span>
           <span class="stat-item" @click.stop="handleComment(post)">
-            <i class="icon-comment">💬</i> {{ post.comments }}
+            <i class="icon-comment">💬</i> {{ post.comments_count || 0 }}
           </span>
         </div>
       </div>
@@ -45,32 +45,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent } from 'vue'
+import type {PropType} from 'vue'
 import { useRouter } from 'vue-router'
-
-interface Publisher {
-  id: number
-  username: string
-  nickname: string
-  avatar: string | null
-}
-
-interface Post {
-  id: number
-  publisher: Publisher
-  title: string
-  content: string
-  likes: number
-  comments: number
-  created_at: string
-  updated_at: string
-}
+import type { Post } from '@/api/index.ts' // ✅ 使用统一的 Post 类型
 
 export default defineComponent({
   name: 'ThePost',
   props: {
     posts: {
-      type: Array as PropType<Post[]>,
+      type: Array as PropType<Post[]>, // ✅ 使用统一的 Post[]
       required: true,
       default: () => []
     },
@@ -96,16 +80,18 @@ export default defineComponent({
       return new Date(timeString).toLocaleString()
     }
 
-    // 点击事件处理
+    // 点击标题跳转
     const navigateToPost = (postId: number) => {
       emit('navigate', postId)
       router.push(`/post/${postId}`)
     }
 
+    // 点赞处理
     const handleLike = (post: Post) => {
       emit('like', post)
     }
 
+    // 评论处理
     const handleComment = (post: Post) => {
       emit('comment', post)
     }

@@ -52,13 +52,11 @@ const router = createRouter({
       children:[
         {
           path:'comment',
-          component:CommentsOnSelf,
-          meta:{title:'zzz'}
+          component:CommentsOnSelf
         },
         {
           path:'likelist',
-          component:LikeList,
-          meta:{title:'zzz'}
+          component:LikeList
         },
         {
           path: '',
