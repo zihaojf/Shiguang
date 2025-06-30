@@ -85,20 +85,21 @@ export default {
     }
     )
   },
-  //获取动态列表
-  async getPosts(): Promise<PostRequest> {
-    try {
-      const response: AxiosResponse<PostRequest> = await apiClient.get('/posts'); // Adjust endpoint as needed
-      return response.data;
-    } catch (error) {
-      // Handle errors appropriately
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error fetching posts:', error.message);
-        throw new Error(`Failed to fetch posts: ${error.message}`);
-      } else {
-        console.error('Unexpected error fetching posts:', error);
-        throw new Error('An unexpected error occurred while fetching posts');
-      }
+  // 获取动态列表
+async getPosts(token: string): Promise<Post[]> {
+  try {
+    const response = await apiClient.get<PostRequest>('/api/posts/', {
+    });
+    console.log('请求成功',response.data.data);
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('请求失败:', error.message);
+      throw new Error(`获取帖子失败: ${error.message}`);
+    } else {
+      console.error('未知错误:', error);
+      throw new Error('发生未知错误');
     }
-  },
+  }
+}
 }
