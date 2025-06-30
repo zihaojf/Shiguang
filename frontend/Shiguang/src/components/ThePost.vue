@@ -30,10 +30,10 @@
         <!-- 点赞和评论区域 -->
         <div class="post-stats">
           <span class="stat-item" @click.stop="handleLike(post)">
-            <i class="icon-like">👍</i> {{ post.likes_count || 0 }}
+            <i class="icon-like">👍</i> {{ post.likes || 0 }}
           </span>
           <span class="stat-item" @click.stop="handleComment(post)">
-            <i class="icon-comment">💬</i> {{ post.comments_count || 0 }}
+            <i class="icon-comment">💬</i> {{ post.comments || 0 }}
           </span>
         </div>
       </div>
@@ -48,13 +48,13 @@
 import { defineComponent } from 'vue'
 import type {PropType} from 'vue'
 import { useRouter } from 'vue-router'
-import type { Post } from '@/api/index.ts' // ✅ 使用统一的 Post 类型
+import type { PostData } from '@/api/index.ts' // ✅ 使用统一的 PostData 类型
 
 export default defineComponent({
   name: 'ThePost',
   props: {
     posts: {
-      type: Array as PropType<Post[]>, // ✅ 使用统一的 Post[]
+      type: Array as PropType<PostData[]>, // ✅ 使用统一的 PostData[]
       required: true,
       default: () => []
     },
@@ -87,12 +87,12 @@ export default defineComponent({
     }
 
     // 点赞处理
-    const handleLike = (post: Post) => {
+    const handleLike = (post: PostData) => {
       emit('like', post)
     }
 
     // 评论处理
-    const handleComment = (post: Post) => {
+    const handleComment = (post: PostData) => {
       emit('comment', post)
     }
 

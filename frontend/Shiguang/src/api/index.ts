@@ -23,23 +23,19 @@ interface PostRequest {
 interface PostResponse {
   status: string
   code: number
-  data: PostData
+  data: PostData[]
 }
 
-interface PostData {
-  id: number
-  publisher: {
-    id: number
-    username: string
-    nickname: string
-    avadar: string | null
-  }
-  title: string
-  content: string
-  likes: number
-  comments: number
-  created_at: string
-  updated_at: string
+export interface PostData {
+  id: number;
+  publisher: User;
+  title: string;
+  content: string;
+  image: string | null;
+  likes: number;
+  comments: number;
+  created_at: string;
+  updated_at: string;
 }
 
 interface User {

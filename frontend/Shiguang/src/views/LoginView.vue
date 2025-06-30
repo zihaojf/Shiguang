@@ -15,6 +15,7 @@
             v-model="username"
             placeholder="请输入用户名"
             class="form-input"
+            @keyup.enter="mockLogin"
           />
         </div>
 
@@ -26,6 +27,7 @@
             v-model="password"
             placeholder="请输入密码"
             class="form-input"
+            @keyup.enter="mockLogin"
           />
         </div>
 
@@ -37,7 +39,7 @@
         </div>
 
         <button class="login-button" @click="mockLogin">
-          {{ loading ? '登陆中...' : '登录' }}
+          {{ loading ? '登录中...' : '登录' }}
         </button>
       </div>
 
@@ -73,7 +75,7 @@ export default {
       if (!this.username || !this.password) {
         this.error = '请输入用户名和密码！'
         ElNotification({
-          title: '登陆失败',
+          title: '登录失败',
           message: '请填写用户名和密码',
           position: 'top-right',
           type: 'error',
@@ -85,11 +87,11 @@ export default {
       this.error = ''
       try {
         const response = await api.login({ username: this.username, password: this.password })
-        console.log('登陆成功', response.data)
+        console.log('登录成功', response.data)
         localStorage.setItem('token', response.data.data.access)//报错才能跑
         localStorage.setItem('refresh',response.data.data.refresh)
         ElNotification({
-          title: '登陆成功',
+          title: '登录成功',
           message: '正在进入首页...',
           position: 'top-right',
           type: 'success',
@@ -109,7 +111,7 @@ export default {
         }
 
         ElNotification({
-          title: '登陆失败',
+          title: '登录+失败',
           message: this.error,
           position: 'top-right',
           type: 'error',
