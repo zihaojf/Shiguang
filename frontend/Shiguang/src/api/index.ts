@@ -24,6 +24,18 @@ interface PostResponse {
   data: PostData[]
 }
 
+export interface PostData {
+  id: number;
+  publisher: User;
+  title: string;
+  content: string;
+  image: string | null;
+  likes: number;
+  comments: number;
+  created_at: string;
+  updated_at: string;
+}
+
 interface User {
   id: number;
   last_login: string | null;
@@ -41,18 +53,6 @@ interface User {
   profile_visibility: "public" | "friend" | "private";
   birthday: string | null;
   register_at: string;
-}
-
-export interface PostData {
-  id: number;
-  publisher: User;
-  title: string;
-  content: string;
-  image: string | null;
-  likes: number;
-  comments: number;
-  created_at: string;
-  updated_at: string;
 }
 
 // 创建 axios 实例
@@ -86,7 +86,7 @@ export default {
     )
   },
   // 获取动态列表
-async getPosts(token: string): Promise<Post[]> {
+async getPosts(token: string): Promise<PostData[]> {
   try {
     const response = await apiClient.get<PostRequest>('/api/posts/', {
     });
