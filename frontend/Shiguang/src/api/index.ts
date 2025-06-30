@@ -52,7 +52,7 @@ interface PostRequest {
 
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:4523/m1/6644719-6352709-default', // Django 后端地址
+  baseURL: 'http://8.148.22.202:8000', // Django 后端地址
   timeout: 5000,
 })
 
