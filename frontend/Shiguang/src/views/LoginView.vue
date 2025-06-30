@@ -89,6 +89,7 @@ export default {
         const response = await api.login({ username: this.username, password: this.password })
         console.log('登录成功', response.data)
         localStorage.setItem('token', response.data.data.access)//报错才能跑
+        localStorage.setItem('refresh',response.data.data.refresh)
         ElNotification({
           title: '登录成功',
           message: '正在进入首页...',

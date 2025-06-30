@@ -46,7 +46,6 @@ export default defineComponent({
 .settings-container {
   display: flex;
   width: 100vw;
-  min-height: 100vh;
   background-color: #f5f7fa;
   margin-top: 100px;
 }
