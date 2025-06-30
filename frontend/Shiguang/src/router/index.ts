@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isLoggedIn} from '@/api/auth'
+import { ElMessage } from 'element-plus'
 
 //登录和注册界面
 import LoginPageView from '@/views/LoginView.vue'
@@ -44,11 +46,13 @@ const router = createRouter({
       path:'/edit',
       name:'edit',
       component:EditWindow,
+      meta:{requiresAuth:true},
     },
     {
       path:'/mail',
       name:'mail',
       component:MailWindow,
+      meta:{requiresAuth:true},
       children:[
         {
           path:'comment',
@@ -68,6 +72,7 @@ const router = createRouter({
       path:'/users',
       name:'users',
       component:UsersWindow,
+      meta:{requiresAuth:true},
     },
     {
       path: '/test-post',
@@ -87,6 +92,7 @@ const router = createRouter({
     {
       path: '/settings',
       component: SettingsView,
+      meta:{requiresAuth:true},
       children: [
         {
           path: 'profile',
@@ -105,6 +111,24 @@ const router = createRouter({
       ]
     }
   ],
+})
+
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = isLoggedIn()
+  console.log(isLoggedIn())
+  //未登录用户不允许访问编辑、消息、好友、设置页面
+  if (!loggedIn && to.meta.requiresAuth) {
+    ElMessage.warning('请先登录后再访问该页面')
+    return next('/')
+  }
+  //已登录状态访问登陆页面
+  if (loggedIn && to.path === '/login') {
+    return next('/')
+  }
+
+
+  next()
 })
 
 export default router
