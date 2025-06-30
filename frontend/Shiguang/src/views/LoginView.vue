@@ -86,13 +86,14 @@ export default {
       try {
         const response = await api.login({ username: this.username, password: this.password })
         console.log('登陆成功', response.data)
-        localStorage.setItem('token', response.data.access)//!!
+        localStorage.setItem('token', response.data.data.access)//报错才能跑
         ElNotification({
           title: '登陆成功',
           message: '正在进入首页...',
           position: 'top-right',
           type: 'success',
         })
+        console.log('login', response.data.data.access)
         this.router.push('/')
       } catch (err: unknown) {
         console.error('登录失败:', err)

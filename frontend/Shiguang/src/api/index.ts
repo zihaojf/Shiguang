@@ -12,9 +12,37 @@ interface LoginResponse {
   refresh: string
 }
 
+interface PostRequest {
+  title: string
+  content: string
+  visibility: string
+}
+
+interface PostResponse {
+  status: string
+  code: number
+  data: PostData
+}
+
+interface PostData {
+  id: number
+  publisher: {
+    id: number
+    username: string
+    nickname: string
+    avadar: string | null
+  }
+  title: string
+  content: string
+  likes: number
+  comments: number
+  created_at: string
+  updated_at: string
+}
+
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:4523/m1/6644719-6352709-default', // Django 后端地址
+  baseURL: 'http://8.148.22.202:8000', // Django 后端地址
   timeout: 5000,
 })
 
@@ -31,5 +59,15 @@ export default {
         Authorization: `Token ${token}`,
       },
     })
+  },
+
+  // 发布帖子接口
+  post(data: PostRequest, token: string) {
+    return apiClient.post<PostResponse>('/api/posts/', data,{
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+    )
   },
 }
