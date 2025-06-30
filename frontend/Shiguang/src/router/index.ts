@@ -51,14 +51,12 @@ const router = createRouter({
       component:MailWindow,
       children:[
         {
-          path:'/comment',
-          component:CommentsOnSelf,
-          meta:{title:'zzz'}
+          path:'comment',
+          component:CommentsOnSelf
         },
         {
-          path:'/likelist',
-          component:LikeList,
-          meta:{title:'zzz'}
+          path:'likelist',
+          component:LikeList
         },
         {
           path: '',
