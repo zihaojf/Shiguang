@@ -32,8 +32,8 @@ export interface PostData {
   title: string;
   content: string;
   image: string | null;
-  likes: number;
-  comments: number;
+  likes_count: number;
+  comments_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -89,17 +89,16 @@ export default {
   },
 
   // 获取用户个人资料接口
-  getuser_profile(token: string) {
+  getuser_profile() {
     return apiClient.get('/api/users/')
   },
 
   // 发布帖子接口
-  post(data: PostRequest, token: string) {
-    return apiClient.post<PostResponse>('/api/posts/', data
-    )
+  post(data: PostRequest) {
+    return apiClient.post<PostResponse>('/api/posts/', data)
   },
   // 获取动态列表
-async getPosts(token: string): Promise<Post[]> {
+async getPosts(): Promise<Post[]> {
   try {
     const response = await apiClient.get<PostRequest>('/api/posts/', {
     });
