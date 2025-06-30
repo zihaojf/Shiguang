@@ -46,7 +46,7 @@
               <!-- 此处插入公开图标 -->
               <span class="icon">🌍</span> 公开
             </el-dropdown-item>
-            <el-dropdown-item @click="selectVisibility('friends')">
+            <el-dropdown-item @click="selectVisibility('friend')">
               <!-- 此处插入好友图标 -->
               <span class="icon">👥</span> 好友可见
             </el-dropdown-item>
@@ -78,7 +78,7 @@ const content = ref('')
 const textareaRef = ref<HTMLElement | null>(null)
 
 // 可见性状态
-const visibility = ref<'public' | 'friends'>('public')
+const visibility = ref<'public' | 'friend'>('public')
 const dropdownVisible = ref(false)
 const visibilityLabel = computed(() => {
   return visibility.value === 'public' ? '公开' : '好友可见'
@@ -102,7 +102,7 @@ function adjustTextareaHeight() {
 }
 
 // 下拉菜单切换
-function selectVisibility(value: 'public' | 'friends') {
+function selectVisibility(value: 'public' | 'friend') {
   visibility.value = value
   dropdownVisible.value = false
 }
@@ -128,7 +128,7 @@ async function handleSubmit() {
     console.log('已登录')
     console.log('token',token)
 
-    const response = await api.post(
+    const response = await api.post(   //暂时不影响
     {
       title: title.value,
       content: content.value,

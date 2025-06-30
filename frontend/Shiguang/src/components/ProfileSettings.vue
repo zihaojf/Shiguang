@@ -36,6 +36,28 @@
       </div>
 
       <div class="form-group">
+        <label for="birthday">生日</label>
+        <input
+          id="birthday"
+          type="text"
+          v-model="form.birthday"
+          @input="checkChanges"
+          placeholder="YYYY-MM-DD"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="phonenumber">手机号</label>
+        <input
+          id="phonenumber"
+          type="text"
+          v-model="form.phonenumber"
+          @input="checkChanges"
+          placeholder="请输入手机号"
+        >
+      </div>
+
+      <div class="form-group">
         <label for="bio">个人简介</label>
         <textarea
           id="bio"
@@ -65,6 +87,8 @@ import { ElNotification } from 'element-plus'
 interface UserProfile {
   avatar: string | null
   nickname: string
+  birthday: string
+  phonenumber: string
   bio: string
 }
 
@@ -78,6 +102,8 @@ export default defineComponent({
     const form = ref<UserProfile>({
       avatar: null,
       nickname: '',
+      birthday: '',
+      phonenumber: '',
       bio: ''
     })
 
@@ -93,6 +119,8 @@ export default defineComponent({
         const mockData: UserProfile = {
           avatar: '/current-avatar.jpg',
           nickname: '当前昵称',
+          birthday: '2000-01-01',
+          phonenumber: '13388885555',
           bio: '这是当前的个人简介'
         }
         form.value = {...mockData}
@@ -231,7 +259,7 @@ export default defineComponent({
 }
 
 .el-icon {
-  z-index: 1000;
+  z-index: 900;
   font-size: 1.5rem;
   color: black;
 }

@@ -21,23 +21,7 @@ interface PostRequest {
 interface PostResponse {
   status: string
   code: number
-  data: PostData
-}
-
-interface PostData {
-  id: number
-  publisher: {
-    id: number
-    username: string
-    nickname: string
-    avadar: string | null
-  }
-  title: string
-  content: string
-  likes: number
-  comments: number
-  created_at: string
-  updated_at: string
+  data: PostData[]
 }
 
 interface User {
@@ -59,23 +43,16 @@ interface User {
   register_at: string;
 }
 
-export interface Post {
+export interface PostData {
   id: number;
   publisher: User;
   title: string;
   content: string;
   image: string | null;
-  likes_count: number;
-  comments_count: number;
+  likes: number;
+  comments: number;
   created_at: string;
   updated_at: string;
-  visibility: "public" | "friend" | "private"; // Based on the data, seems to be these values
-}
-
-interface PostRequest {
-  status: string;
-  code: number;
-  data: Post[];
 }
 
 // 创建 axios 实例
