@@ -33,8 +33,8 @@ export interface PostData {
   title: string;
   content: string;
   image: string | null;
-  likes: number;
-  comments: number;
+  likes_count: number;
+  comments_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -94,15 +94,18 @@ export default {
     return apiClient.get('/api/users/me/')
   },
 
+  // 发布帖子接口
+  post(data: PostRequest) {
+    return apiClient.post<PostResponse>('/api/posts/', data
+    )
+  },
+
   //修改更新用户个人资料接口
   updateuser_profile(id: number, data: FormData) {
     return apiClient.patch(`/api/users/${id}/`, data)
   },
 
-  // 发布帖子接口
-  post(data: PostRequest) {
-    return apiClient.post<PostResponse>('/api/posts/', data)
-  },
+
   // 获取动态列表
 async getPosts(): Promise<Post[]> {
   try {
