@@ -2,7 +2,6 @@ import axios from 'axios'
 import type { AxiosInstance,AxiosResponse } from 'axios'
 import router from '@/router'
 import apiClient from './axiosConfig'
-import { getUserIdFromToken } from '@/components/ProfileSettings.vue'
 
 // 定义请求和响应类型
 interface LoginRequest {
@@ -13,6 +12,17 @@ interface LoginRequest {
 interface LoginResponse {
   access: string
   refresh: string
+}
+
+interface RegisterRequest {
+  username: string
+  password: string
+}
+
+interface RegisterResponse {
+  refresh: string
+  access: string
+  user: User          // 暂时没有问题
 }
 
 interface PostRequest {
@@ -89,6 +99,11 @@ export default {
     return apiClient.post<LoginResponse>('/api/token/', data)
   },
 
+  // 注册接口
+  register(data: RegisterRequest) {
+    return apiClient.post<RegisterResponse>('/api/register/', data)
+  },
+
   // 获取用户个人资料接口
   getuser_profile() {
     return apiClient.get('/api/users/me/')
@@ -96,8 +111,7 @@ export default {
 
   // 发布帖子接口
   post(data: PostRequest) {
-    return apiClient.post<PostResponse>('/api/posts/', data
-    )
+    return apiClient.post<PostResponse>('/api/posts/', data)
   },
 
   //修改更新用户个人资料接口
