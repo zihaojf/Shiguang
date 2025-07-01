@@ -32,8 +32,8 @@ export interface PostData {
   title: string;
   content: string;
   image: string | null;
-  likes: number;
-  comments: number;
+  likes_count: number;
+  comments_count: number;
   created_at: string;
   updated_at: string;
 }

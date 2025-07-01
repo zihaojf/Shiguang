@@ -29,10 +29,11 @@
 
     <div class="header-right">
       <div class="user-avatar">
-        <!-- 这里插入用户头像SVG或图片 -->
-        <slot name="avatar">
-          <svg-icon name="user" />
-        </slot>
+        <el-avatar
+        :size="50"
+        shape="circle"
+        src="https://example.com/avatar.jpg"
+      />
       </div>
 
       <button class="logout-btn" @click="logout">退出登录</button>
@@ -42,6 +43,11 @@
       </button>
     </div>
   </header>
+
+
+
+
+
 </template>
 
 <script setup lang="ts">
@@ -51,6 +57,8 @@ import SettingIcon from './icons/SettingIcon.vue'
 import { defineAsyncComponent,watchEffect } from 'vue'
 import {useRouter,useRoute} from 'vue-router'
 import {logout} from '@/stores/logout'
+import {avatar} from 'element-plus'
+
 // 定义导航图标类型
 interface NavIcon {
   name: string
@@ -156,14 +164,6 @@ watchEffect(() => {
   align-items: center;
   gap: 1.5rem;
   max-width: 30%;
-  transition: all 0.3s ease-in-out;
-}
-
-.user-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  overflow: hidden;
   transition: all 0.3s ease-in-out;
 }
 
