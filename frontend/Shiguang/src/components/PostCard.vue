@@ -47,6 +47,11 @@ export default {
   display: flex;
   align-items: flex-start;
 }
+.post-content {
+  max-width: 100%; /* 不超过父容器剩余空间 */
+  word-break: break-word; /* 防止长单词撑开容器 */
+  overflow-wrap: break-word; /* 同上，兼容性更好 */
+}
 .avatar {
   width: 40px;
   height: 40px;

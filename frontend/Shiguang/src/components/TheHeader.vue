@@ -34,6 +34,8 @@
           <svg-icon name="user" />
         </slot>
       </div>
+
+      <button class="logout-btn" @click="logout">退出登录</button>
       <button class="settings-btn" @click="handleSettingClick">
         <SettingIcon />
         <svg-icon name="settings" />
@@ -48,7 +50,7 @@ import SearchIcon from './icons/SearchIcon.vue'
 import SettingIcon from './icons/SettingIcon.vue'
 import { defineAsyncComponent,watchEffect } from 'vue'
 import {useRouter,useRoute} from 'vue-router'
-
+import {logout} from '@/stores/logout'
 // 定义导航图标类型
 interface NavIcon {
   name: string

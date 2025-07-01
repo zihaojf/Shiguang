@@ -20,7 +20,7 @@
             </el-dropdown-menu>
           </template>
           <el-button>
-            查看好友 <i class="el-icon-arrow-down el-icon--right"></i>
+            好友列表 <i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
         </el-dropdown>
       </el-submenu>
@@ -29,16 +29,15 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue';
+/*import { ref, onMounted } from 'vue';
 import { getFriends } from '@/api/index'; // 直接使用封装的 API
-import { ElMenu, ElMenuItem, ElSubMenu, ElDropdown, ElDropdownMenu, ElDropdownItem, ElButton } from 'element-plus';
+import { ElMenu, ElMenuItem,  ElDropdown, ElDropdownMenu, ElDropdownItem, ElButton } from 'element-plus';
 
 export default {
   name: 'FriendsWindow',
   components: {
     ElMenu,
     ElMenuItem,
-    ElSubMenu,
     ElDropdown,
     ElDropdownMenu,
     ElDropdownItem,
@@ -69,7 +68,7 @@ export default {
       navigateTo
     };
   }
-};
+};*/
 </script>
 
 <style scoped>
@@ -78,8 +77,12 @@ export default {
 }
 
 .sidebar {
+  position: fixed;
   width: 220px;
-  height: 100vh;
+  height: 90vh;
   border-right: 1px solid #e4e7ed;
+  margin-top: 300px;
+  padding: 20px 0;
+  bottom: 0;
 }
 </style>

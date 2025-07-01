@@ -36,6 +36,17 @@
       </div>
 
       <div class="form-group">
+        <label for="birthday">生日</label>
+        <input
+          id="birthday"
+          type="text"
+          v-model="form.birthday"
+          @input="checkChanges"
+          placeholder="YYYY-MM-DD"
+        >
+      </div>
+
+      <div class="form-group">
         <label for="bio">个人简介</label>
         <textarea
           id="bio"
@@ -49,9 +60,9 @@
       <button
         type="submit"
         class="save-button"
-        :disabled="!hasChanges"
+        :disabled="!hasChanges || isSaving"
       >
-        保存修改
+        {{isSaving ? '保存中...' : '保存修改'}}
       </button>
     </form>
   </div>
@@ -60,11 +71,13 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
 import { Edit } from '@element-plus/icons-vue'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
+import api from '@/api'
 
 interface UserProfile {
   avatar: string | null
   nickname: string
+  birthday: string | null
   bio: string
 }
 
@@ -78,6 +91,7 @@ export default defineComponent({
     const form = ref<UserProfile>({
       avatar: null,
       nickname: '',
+      birthday: null,
       bio: ''
     })
 
@@ -85,19 +99,32 @@ export default defineComponent({
     const originalData = ref<UserProfile>({...form.value})
     const hasChanges = ref(false)
     const fileInput = ref<HTMLInputElement | null>(null)
+    const isSaving = ref(false)
+    const avatarFile = ref<File | null>(null)
 
-    // 模拟从API获取用户数据
-    const fetchUserProfile = () => {
-      // 实际项目中这里应该是API调用
-      setTimeout(() => {
-        const mockData: UserProfile = {
-          avatar: '/current-avatar.jpg',
-          nickname: '当前昵称',
-          bio: '这是当前的个人简介'
+    // 从API获取用户数据
+    const fetchUserProfile = async() => {
+      try {
+        const token = localStorage.getItem('token')
+        if(!token) {
+          throw new Error('未登录')
         }
-        form.value = {...mockData}
-        originalData.value = {...mockData}
-      }, 300)
+
+        const response = await api.getuser_profile(token)
+        const userData = response.data
+
+        form.value = {
+          avatar: userData.avatar,
+          nickname: userData.nickname,
+          birthday: userData.birthday,
+          bio: userData.bio
+        }
+
+        originalData.value = {...form.value}
+      } catch (error) {
+        ElMessage.error('获取用户信息失败')
+        console.error('获取用户信息失败：', error)
+      }
     }
 
     // 检查是否有改动
@@ -116,7 +143,8 @@ export default defineComponent({
       const file = target.files?.[0]
 
       if (file) {
-        // 简单的客户端预览（实际项目应该上传到服务器）
+        avatarFile.value = file
+        // 客户端预览
         const reader = new FileReader()
         reader.onload = (e) => {
           form.value.avatar = e.target?.result as string
@@ -127,22 +155,60 @@ export default defineComponent({
     }
 
     // 保存表单
-    const saveProfile = () => {
-      if (!hasChanges.value) return
+    const saveProfile = async() => {
+      if (!hasChanges.value || isSaving.value) return
 
-      console.log('保存数据:', form.value)
-      // 这里应该是API调用
-      // 保存成功后更新原始数据
-      originalData.value = {...form.value}
-      hasChanges.value = false
+      isSaving.value = true
 
-      ElNotification({
-        title: '已保存',
-        message: '个人资料已更改！',
-        position: 'top-right',
-        type: 'success',
-        duration: 2000
-      })
+
+      try {
+        const token = localStorage.getItem('token')
+        if(!token) {
+          throw new Error('未登录')
+        }
+
+        const formData = new FormData()
+
+        if(form.value.nickname !== originalData.value.nickname) {
+          formData.append('nickname', form.value.nickname)
+        }
+
+        if(form.value.bio !== originalData.value.bio) {
+          formData.append('bio', form.value.bio)
+        }
+
+        if(form.value.birthday !== originalData.value.birthday) {
+          formData.append('birthday', form.value.birthday || '')
+        }
+
+        if(avatarFile.value) {
+          formData.append('avatar', avatarFile.value)
+        }
+
+        //发送更新请求
+        const response = await api.updateuser_profile(token, formData)
+        originalData.value = {...form.value}
+        if(response.data.avatar) {
+          originalData.value.avatar = response.data.avatar
+          form.value.avatar = response.data.avatar
+        }
+        avatarFile.value = null
+        hasChanges.value = false
+
+        ElNotification({
+          title: '已保存',
+          message: '个人资料已更改！',
+          position: 'top-right',
+          type: 'success',
+          duration: 2000
+        })
+      } catch (error) {
+        ElMessage.error('保存失败')
+        console.error('保存失败：', error)
+      } finally {
+        isSaving.value = false
+      }
+
     }
 
     // 初始化获取数据
@@ -152,6 +218,7 @@ export default defineComponent({
       form,
       hasChanges,
       fileInput,
+      isSaving,
       checkChanges,
       triggerFileInput,
       handleAvatarUpload,
@@ -231,7 +298,7 @@ export default defineComponent({
 }
 
 .el-icon {
-  z-index: 1000;
+  z-index: 900;
   font-size: 1.5rem;
   color: black;
 }
