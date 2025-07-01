@@ -30,12 +30,13 @@
     </div>
 
     <div class="header-right">
+
       <div class="user-avatar">
         <el-avatar
         :size="50"
         shape="circle"
-        src="https://example.com/avatar.jpg"
-      />
+        :src="userAvatar"
+        />
       </div>
 
       <button class="logout-btn" @click="logout">退出登录</button>
@@ -53,13 +54,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Component } from 'vue'
+import { onMounted, ref, type Component } from 'vue'
 import SearchIcon from './icons/SearchIcon.vue'
 import SettingIcon from './icons/SettingIcon.vue'
 import { defineAsyncComponent,watchEffect } from 'vue'
 import {useRouter,useRoute} from 'vue-router'
 import {logout} from '@/stores/logout'
 import {avatar,ElNotification} from 'element-plus'
+import api from '@/api/index'
+import DefaultAvatar from '@/assets/default-avatar.svg'
 
 // 定义导航图标类型
 interface NavIcon {
@@ -77,6 +80,26 @@ const navIcons = ref<NavIcon[]>([
 ])
 
 const searchQuery = ref('')
+const userAvatar = ref('')
+
+//获取用户头像
+onMounted(async () => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    try {
+      const user = await api.getuser_profile()
+      // 如果有头像就使用，否则默认
+      userAvatar.value = user.data.data.avatar || DefaultAvatar
+    } catch (err) {
+      console.error('获取用户信息失败', err)
+      userAvatar.value = DefaultAvatar
+    }
+  } else {
+    // 未登录，直接使用默认头像
+    userAvatar.value = DefaultAvatar
+  }
+  console.log(DefaultAvatar)
+})
 
 const handleSearch = () => {
   // 处理搜索逻辑
@@ -116,6 +139,7 @@ watchEffect(() => {
     icon.active = icon.name === currentName
   })
 })
+
 
 </script>
 

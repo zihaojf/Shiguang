@@ -84,6 +84,7 @@ const router = createRouter({
       path: '/profile',
       name: 'Profile',
       component: ProfileView,
+      meta:{requiresAuth:true},
     },
     {
       path: '/post/:id',
@@ -123,31 +124,29 @@ const router = createRouter({
 
 
 router.beforeEach((to, from,next) => {
-  const loggedIn = isLoggedIn()
-  console.log(isLoggedIn())
-  //未登录用户不允许访问编辑、消息、好友、设置页面
-  if (!loggedIn && to.meta.requiresAuth) {
+ const token = localStorage.getItem('token')
+
+  // 不存在 token，说明未登录
+  if (!token && to.meta.requiresAuth) {
     ElMessageBox.confirm(
-        '您尚未登录，是否前往登录页面？',
-        '提示',
-        {
-          confirmButtonText: '去登录',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-        ).then(() => {
-          // 跳转到登录页
-          router.push('/login')
-        }).catch(() => {
-          // 用户点击取消
-        })
-    return next('/')
-  }
-  //已登录状态访问登陆页面
-  if (loggedIn && to.path === '/login') {
-    return next('/')
+      '您尚未登录，是否前往登录页面？',
+      '提示',
+      {
+        confirmButtonText: '去登录',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    ).then(() => {
+      router.push('/login')
+    }).catch(() => {})
+
+    return next('/') // 停在首页
   }
 
+  // 如果用户已登录，不允许再访问 login
+  if (token && to.path === '/login') {
+    return next('/')
+  }
 
   next()
 })
