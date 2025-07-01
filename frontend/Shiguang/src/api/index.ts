@@ -25,11 +25,6 @@ interface RegisterResponse {
   user: User          // 暂时没有问题
 }
 
-interface PostRequest {
-  title: string
-  content: string
-  visibility: string
-}
 
 interface PostResponse {
   status: string
@@ -81,10 +76,11 @@ export interface Post {
   visibility: "public" | "friend" | "private"; // Based on the data, seems to be these values
 }
 
-interface PostRequest {
-  status: string;
-  code: number;
-  data: Post[];
+export interface PostRequest {
+  title: string
+  content: string
+  visibility: 'public' | 'friend' | 'private'
+  image: File | null
 }
 
 // // 创建 axios 实例
@@ -111,7 +107,15 @@ export default {
 
   // 发布帖子接口
   post(data: PostRequest) {
-    return apiClient.post<PostResponse>('/api/posts/', data)
+    const formData = new FormData()
+    formData.append('title', data.title)
+    formData.append('content', data.content)
+    formData.append('visibility', data.visibility)
+    if (data.image) {
+      formData.append('image', data.image)
+    }
+
+    return apiClient.post('/api/posts/', formData)
   },
 
   //修改更新用户个人资料接口
