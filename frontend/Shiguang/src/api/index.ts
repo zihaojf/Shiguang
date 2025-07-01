@@ -93,15 +93,18 @@ export default {
     return apiClient.get('/api/users/')
   },
 
+  // 发布帖子接口
+  post(data: PostRequest) {
+    return apiClient.post<PostResponse>('/api/posts/', data
+    )
+  },
+
   //修改更新用户个人资料接口
-  updateuser_profile(token: string, data: FormData) {
+  updateuser_profile(data: FormData) {
     return apiClient.patch('/api/users/{id}', data)
   },
 
-  // 发布帖子接口
-  post(data: PostRequest) {
-    return apiClient.post<PostResponse>('/api/posts/', data)
-  },
+
   // 获取动态列表
 async getPosts(): Promise<Post[]> {
   try {
