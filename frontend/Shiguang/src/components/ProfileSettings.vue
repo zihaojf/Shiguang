@@ -73,22 +73,6 @@ import { defineComponent, ref, onMounted } from 'vue'
 import { Edit } from '@element-plus/icons-vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import api from '@/api'
-import { jwtDecode } from 'jwt-decode'
-
-interface DecodedToken {
-  user_id: number
-}
-
-export const getUserIdFromToken = (token : string) : number | null => {
-  try {
-    const decoded = jwtDecode<DecodedToken>(token)
-    console.log(decoded)
-    return decoded.user_id || null
-  } catch (error) {
-    console.error('Token解析失败：', error)
-    return null
-  }
-}
 
 interface UserProfile {
   id: number
@@ -216,7 +200,7 @@ export default defineComponent({
         }
 
         //发送更新请求
-        console.log('id',form.value.id)//value:undefined?
+        console.log('id',form.value.id)
         const response = await api.updateuser_profile(form.value.id, formData)
         console.log('enter')
 
