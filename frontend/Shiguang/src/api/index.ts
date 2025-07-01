@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { AxiosInstance,AxiosResponse } from 'axios'
 import router from '@/router'
 import apiClient from './axiosConfig'
+import { getUserIdFromToken } from '@/components/ProfileSettings.vue'
 
 // 定义请求和响应类型
 interface LoginRequest {
@@ -90,12 +91,12 @@ export default {
 
   // 获取用户个人资料接口
   getuser_profile() {
-    return apiClient.get('/api/users/')
+    return apiClient.get('/api/users/me/')
   },
 
   //修改更新用户个人资料接口
-  updateuser_profile(token: string, data: FormData) {
-    return apiClient.patch('/api/users/{id}', data)
+  updateuser_profile(id: number, data: FormData) {
+    return apiClient.patch(`/api/users/${id}/`, data)
   },
 
   // 发布帖子接口
