@@ -3,6 +3,7 @@ from .models import User
 from .serializers import UserSerializer
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.decorators import action
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -19,3 +20,17 @@ class UserViewSet(viewsets.ModelViewSet):
             if obj != self.request.user:
                 raise PermissionDenied("您只能修改或删除自己的账户信息。")
             return obj
+
+    @action(detail=False, methods=['get', 'put'], url_path='me', url_name='me')
+    def me(self, request):
+        user = request.user
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+            return Response(serializer.data)
+
+        elif request.method == 'PUT':
+            serializer = self.get_serializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
