@@ -110,4 +110,29 @@ class PostViewSet(viewsets.ModelViewSet):
         like.delete()
         return Response({'detail':'取消点赞成功'},status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['GET'])
+    def check_like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        # 检查用户是否登录
+        if not user.is_authenticated:
+            return Response({'detail': '需要登录才能查看点赞状态'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        publisher = post.publisher
+
+        # 权限判断（和 like/unlike 一致）
+        if publisher.profile_visibility == 'privacy' and publisher != user:
+            return Response({'detail': '该用户设置了私密账户，你不能查看'}, status=status.HTTP_403_FORBIDDEN)
+
+        if (publisher.profile_visibility == 'friend' or post.visibility == 'friend') and publisher != user:
+            is_friend = Friendship.objects.filter(
+                Q(user_a=publisher, user_b=user, status='已接受')
+            ).exists()
+            if not is_friend:
+                return Response({'detail': '你需要是好友才能查看点赞状态'}, status=status.HTTP_403_FORBIDDEN)
+
+        is_liked = Like.objects.filter(post=post, liker=user).exists()
+        return Response({'is_liked': is_liked}, status=status.HTTP_200_OK)
+
 

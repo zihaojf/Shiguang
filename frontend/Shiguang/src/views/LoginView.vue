@@ -55,6 +55,7 @@ import { useRouter } from 'vue-router'
 import api from '@/api'
 import { isAxiosError } from 'axios'
 import { ElNotification } from 'element-plus'
+import { jwtDecode } from 'jwt-decode'
 
 export default {
   name: 'LoginView',

@@ -35,9 +35,10 @@ onMounted(async () => {
 <style scoped>
 .home {
   display: flex;
-  margin-top: 120px;
+  margin-top: 100px;
   width: 99vw;
   justify-content: center;
+  background-color: #f1f2f5;
 }
 
 h1 {
@@ -47,6 +48,7 @@ h1 {
 }
 
 .posts-wrapper {
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 20px

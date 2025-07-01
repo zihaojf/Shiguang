@@ -2,6 +2,7 @@
   <header class="header">
     <div class="header-left">
       <div class="logo">logo</div>
+
       <div class="search-bar">
         <svg-icon name="search" /> <SearchIcon />
         <input
@@ -11,6 +12,7 @@
           @keyup.enter="handleSearch"
         />
       </div>
+
     </div>
 
     <div class="nav-icons">
@@ -57,7 +59,7 @@ import SettingIcon from './icons/SettingIcon.vue'
 import { defineAsyncComponent,watchEffect } from 'vue'
 import {useRouter,useRoute} from 'vue-router'
 import {logout} from '@/stores/logout'
-import {avatar} from 'element-plus'
+import {avatar,ElNotification} from 'element-plus'
 
 // 定义导航图标类型
 interface NavIcon {
@@ -78,6 +80,18 @@ const searchQuery = ref('')
 
 const handleSearch = () => {
   // 处理搜索逻辑
+  const keyword = searchQuery.value.trim()
+  if(!keyword) {
+    ElNotification({
+        title: '请输入查找数据',
+        message: '请输入查找数据',
+        position: 'bottom-left',
+        type: 'error',
+      })
+    return
+  }
+  const url = `${window.location.origin}/search?q=${encodeURIComponent(keyword)}`
+  window.open(url, '_blank')
   console.log('搜索:', searchQuery.value)
 }
 

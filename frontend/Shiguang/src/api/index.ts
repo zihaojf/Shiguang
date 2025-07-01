@@ -122,5 +122,24 @@ async getPosts(): Promise<Post[]> {
       throw new Error('发生未知错误');
     }
   }
-}
+},
+
+  //点赞、取消点赞接口
+  likePost (postId:number){
+    return apiClient.post(`/api/posts/${postId}/like/`)
+  },
+
+  unlikePost(postId:number){
+    return apiClient.delete(`/api/posts/${postId}/unlike/`)
+  },
+  checkLikeStatus(postId:number){
+    return apiClient.get(`/api/posts/${postId}/check_like/`)
+  },
+
+  //搜索
+  searchPosts(keyword:string){
+    return apiClient.get(`/api/posts/search/?q=${encodeURIComponent(keyword)}`)
+  }
+
+
 }

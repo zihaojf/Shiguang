@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isLoggedIn} from '@/api/auth'
-import { ElMessage } from 'element-plus'
+import { ElMessage,ElMessageBox} from 'element-plus'
 
 //登录和注册界面
 import LoginPageView from '@/views/LoginView.vue'
@@ -23,6 +23,7 @@ import LikeList from '@/components/LikeList.vue'//查看点赞自己的用户
 
 //测试用，不重要
 import TestPostView from '@/views/testPostView.vue'
+import SearchResults from '@/views/SearchResults.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,10 +86,17 @@ const router = createRouter({
       component: ProfileView,
     },
     {
-      path: '/post',
+      path: '/post/:id',
       name: 'Post',
       component: PostView,
-    },//后续修改
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: SearchResults,
+    },
+
+    //后续修改
     {
       path: '/settings',
       component: SettingsView,
@@ -114,12 +122,25 @@ const router = createRouter({
 })
 
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from,next) => {
   const loggedIn = isLoggedIn()
   console.log(isLoggedIn())
   //未登录用户不允许访问编辑、消息、好友、设置页面
   if (!loggedIn && to.meta.requiresAuth) {
-    ElMessage.warning('请先登录后再访问该页面')
+    ElMessageBox.confirm(
+        '您尚未登录，是否前往登录页面？',
+        '提示',
+        {
+          confirmButtonText: '去登录',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+        ).then(() => {
+          // 跳转到登录页
+          router.push('/login')
+        }).catch(() => {
+          // 用户点击取消
+        })
     return next('/')
   }
   //已登录状态访问登陆页面
