@@ -22,6 +22,7 @@ import CommentsOnSelf from '@/components/CommentsOnSelf.vue'//查看他人对自
 import LikeList from '@/components/LikeList.vue'//查看点赞自己的用户
 import AddFriend from '@/components/AddFriend.vue'//添加好友页面
 import FriendRequest from '@/components/FriendRequest.vue'//处理好友申请页面
+import ChatWindow from '@/components/ChatWindow.vue'//聊天窗口
 
 //测试用，不重要
 import TestPostView from '@/views/testPostView.vue'
@@ -56,6 +57,7 @@ const router = createRouter({
     {
       path:'/mail',
       name:'mail',
+      redirect: '/mail/comment',
       component:MailWindow,
       meta:{requiresAuth:true},
       children:[
@@ -67,15 +69,12 @@ const router = createRouter({
           path:'likelist',
           component:LikeList
         },
-        {
-          path: '',
-          redirect: '/mail/comment'
-        }
       ]
     },
     {
       path:'/users',
       name:'users',
+      redirect:'/users/request',
       component:UsersWindow,
       meta:{requiresAuth:true},
       children:[
@@ -86,6 +85,10 @@ const router = createRouter({
         {
           path:'request',
           component:FriendRequest
+        },
+        {
+          path:'chat/:UserId',
+          component:ChatWindow
         }
       ]
     },
