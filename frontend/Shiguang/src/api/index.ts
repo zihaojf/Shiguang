@@ -370,6 +370,10 @@ async getPrivateMessagesWithUser(contactId: number): Promise<PrivateMessage[]> {
   // 创建评论
   createComment(payload: { content: string, post: number, parent_comment?: number|null }) {
     return apiClient.post(`/api/comments/`, payload)
-  }
+  },
+  //获取评论提醒
+  getCommentOnSelf(){
+    return apiClient.get(`/api/comments/myreplies/`)
+  },
 
 }

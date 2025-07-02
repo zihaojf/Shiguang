@@ -1,86 +1,60 @@
 <template>
   <div class="comments-container">
     <h2>评论与回复</h2>
-
     <div v-if="loading" class="loading">加载中...</div>
-
-    <div v-else-if="comments.length === 0" class="empty">
-      暂无评论
-    </div>
+    <div v-else-if="comments.length === 0" class="empty">暂无评论</div>
 
     <div v-else class="comments-list">
-      <div
-        v-for="comment in comments"
-        :key="comment.id"
-        class="comment-item"
-      >
-        <!-- 主评论 -->
-        <div class="comment-main">
-          <div class="comment-header">
-            <span class="username">用户ID: {{ comment.user }}</span>
-            <span class="time">{{ formatDate(comment.created_at) }}</span>
+      <div v-for="comment in comments" :key="comment.id" class="comment-item">
+        <div class="comments-body">
+          <div class="user-avatar" @click="goToUserProfile(comment.user.id)">
+            <img :src="comment.user.avatar ? getAvatarUrl(comment.user.avatar) : DefaultAvatar " class="avatar" v-if="comment.user.avatar" />
           </div>
-          <div class="comment-content">
-            {{ comment.content }}
-          </div>
-          <div class="comment-meta">
-            帖子ID: {{ comment.post }} |
-            <button
-              @click="toggleReply(comment.id)"
-              class="reply-btn"
-            >
-              {{ expandedComments[comment.id] ? '收起回复' : '查看回复' }}
-            </button>
+
+          <div class="comment-main" @click="goToPostDetail(comment.post.id)">
+            <div class="comment-header">
+              <span class="username" @click="goToUserProfile(comment.user.id)">{{ comment.user.nickname || comment.user.username }}</span>
+              <span class="time">{{ formatDate(comment.created_at) }}</span>
+            </div>
+
+            <div class="comment-content">
+              {{ comment.content }}
+            </div>
+
+            <div class="comment-meta">
+              评论于帖子: 「{{ comment.post.title }}」
+              <template v-if="comment.parent_comment">
+                | 回复你的评论
+              </template>
+            </div>
+
           </div>
         </div>
 
-        <!-- 子评论 -->
-        <div
-          v-if="expandedComments[comment.id] && comment.children.length > 0"
-          class="children-comments"
-        >
-          <div
-            v-for="child in comment.children"
-            :key="child.id"
-            class="child-comment"
-          >
-            <div class="comment-header">
-              <span class="username">用户ID: {{ child.user }}</span>
-              <span class="time">{{ formatDate(child.created_at) }}</span>
-            </div>
-            <div class="comment-content">
-              回复: {{ child.content }}
-            </div>
-            <div class="comment-meta">
-              帖子ID: {{ child.post }} | 父评论ID: {{ child.parent_comment }}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
+
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
+import type {User,Post} from '@/api/index'
+import { useRouter } from 'vue-router'
+
+const DefaultAvatar = new URL('@/assets/default-avatar.svg',import.meta.url).href
 
 interface Comment {
   id: number
-  user: number
+  user: User
   content: string
-  post: number
+  post: Post
   parent_comment: number | null
-  children: Comment[]
   created_at: string
 }
 
-interface ApiResponse {
-  status: string
-  code: number
-  data: Comment[]
-}
 
 export default defineComponent({
   name: 'CommentsOnSelf',
@@ -93,27 +67,20 @@ export default defineComponent({
     const fetchComments = async () => {
       try {
         loading.value = true
-        // 这里需要获取当前用户ID，假设从localStorage或store中获取
+        // 这里需要获取当前用户ID
         const temp = await api.getuser_profile()
         const currentUserId = temp.data.data.id
         if (!currentUserId) {
           throw new Error('未登录')
         }
 
-        // 实际项目中这里应该是获取用户相关评论的专用API
-        // 示例中使用通用评论API，需要根据实际API调整
-        const response = await api.get({
-          params: {
-            user: currentUserId  // 假设支持按用户ID筛选
-          }
-        }) as ApiResponse
-
-        if (response.status === 'OK') {
-          comments.value = response.data
-          // 初始化展开状态
-          response.data.forEach(comment => {
-            expandedComments.value[comment.id] = false
-          })
+        const response = await api.getCommentOnSelf()
+        if(response.data.status === 'OK'){
+          comments.value = response.data.data
+        }
+        else{
+          console.log('错误返回',response.data)
+          ElMessage.error('评论数据加载失败')
         }
       } catch (error) {
         ElMessage.error('获取评论失败')
@@ -123,9 +90,27 @@ export default defineComponent({
       }
     }
 
-    // 切换回复显示
-    const toggleReply = (commentId: number) => {
-      expandedComments.value[commentId] = !expandedComments.value[commentId]
+    const baseURL = 'http://8.148.22.202:8000'
+
+    function getAvatarUrl(avatar: string | null): string {
+      if (!avatar) return DefaultAvatar
+      if (avatar.startsWith('http')) return avatar
+      return baseURL + avatar
+    }
+
+    //跳转帖子
+    function goToPostDetail(postid:number) {
+      const postId = postid
+      const base = import.meta.env.BASE_URL
+      const url = `${window.location.origin}${base}post/${postId}`
+      window.open(url,'_blank')
+    }
+    //跳转个人主页
+    function goToUserProfile(userid:number) {
+      const userId = userid
+      const base = import.meta.env.BASE_URL
+      const url = `${window.location.origin}${base}profile/${userId}`
+      window.open(url,'_blank')
     }
 
     // 格式化日期
@@ -140,8 +125,11 @@ export default defineComponent({
       loading,
       comments,
       expandedComments,
-      toggleReply,
-      formatDate
+      formatDate,
+      getAvatarUrl,
+      DefaultAvatar,
+      goToPostDetail,
+      goToUserProfile,
     }
   }
 })
@@ -150,8 +138,45 @@ export default defineComponent({
 <style scoped>
 .comments-container {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 10px auto;
   padding: 20px;
+}
+
+.comments-list{
+  display: flex;
+  flex-direction: column;
+}
+
+.comments-body{
+  display: flex;
+  flex-direction: row;
+}
+
+.avatar{
+  width: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.comment-main{
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: 500;
+  color:black;
+  cursor: pointer;
+}
+
+.time {
+  font-size: 12px;
 }
 
 .loading, .empty {
@@ -182,26 +207,13 @@ export default defineComponent({
 .comment-content {
   margin-bottom: 8px;
   line-height: 1.5;
+  cursor: pointer;
 }
 
 .comment-meta {
   font-size: 12px;
   color: #999;
-}
-
-.children-comments {
-  margin-left: 30px;
-  padding-left: 15px;
-  border-left: 2px solid #eee;
-}
-
-.child-comment {
-  padding: 10px 0;
-  border-bottom: 1px dashed #eee;
-}
-
-.child-comment:last-child {
-  border-bottom: none;
+  cursor: pointer;
 }
 
 .reply-btn {
