@@ -119,8 +119,8 @@ export default {
   },
 
   //修改更新用户个人资料接口
-  updateuser_profile(id: number, data: FormData) {
-    return apiClient.patch(`/api/users/${id}/`, data)
+  updateuser_profile(userId: number, data: FormData) {
+    return apiClient.patch(`/api/users/${userId}/`, data)
   },
 
 
@@ -157,7 +157,20 @@ async getPosts(): Promise<Post[]> {
   //搜索
   searchPosts(keyword:string){
     return apiClient.get(`/api/posts/search/?q=${encodeURIComponent(keyword)}`)
-  }
+  },
 
+  //获取帖子评论接口
+  commentGet(postId: number) {
+    return apiClient.get(`/api/comments/${postId}`)
+  },
 
+  //获取回复评论接口
+  myrepliesGet() {
+    return apiClient.get('/api/comments/myreplies/')
+  },
+
+  //获取帖子点赞接口
+  likesGet() {
+    return apiClient.get('/api/posts/mylikes/')
+  },
 }
