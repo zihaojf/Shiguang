@@ -12,7 +12,6 @@
 import { ref, onMounted } from 'vue'
 import PostCard from '@/components/PostCard.vue'
 import api from '@/api/index.ts'
-import type { Post } from '@/api/index.ts'
 import type { PostData } from '@/api/index.ts'
 
 const posts = ref<PostData[]>([])

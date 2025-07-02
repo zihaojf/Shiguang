@@ -30,7 +30,7 @@
       </div>
     </div>
     </div>
-    
+
   </div>
 </template>
 
@@ -188,15 +188,15 @@ export default {
 }
 
 .like-wrapper:hover .like-circle {
-  background-color: rgba(255, 153, 0, 0.1); 
-  box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3); 
-  
+  background-color: rgba(255, 153, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+
 }
 
 .like-count {
   font-size: 14px;
   color: grey;
-  font-weight: 400; 
+  font-weight: 400;
 }
 .like-wrapper:hover .like-count{
   font-size: 14px;
@@ -223,15 +223,15 @@ export default {
 }
 
 .comment-wrapper:hover .comment-circle {
-  background-color: rgba(255, 153, 0, 0.1); 
-  box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3); 
-  
+  background-color: rgba(255, 153, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+
 }
 
 .comment-count {
   font-size: 14px;
   color: grey;
-  font-weight: 400; 
+  font-weight: 400;
 }
 .comment-wrapper:hover .comment-count{
   font-size: 14px;
