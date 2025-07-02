@@ -122,6 +122,33 @@ interface FriendRequestResponse {
   };
 }
 
+// 私信发送请求体
+export interface PrivateMessageRequest {
+  receiver: number
+  content: string
+  group?: string | null
+}
+
+// 私信消息结构
+export interface PrivateMessage {
+  id: number
+  sender: {
+    id: number
+    username: string
+    nickname: string
+    avatar: string | null
+  }
+  receiver: {
+    id: number
+    username: string
+    nickname: string
+    avatar: string | null
+  }
+  content: string
+  created_at: string
+  group: string | null
+}
+
 // // 创建 axios 实例
 // const apiClient: AxiosInstance = axios.create({
 //   baseURL: 'http://8.148.22.202:8000', // Django 后端地址
@@ -296,4 +323,41 @@ async addFriend(data: AddFriendRequest) {
   likesGet() {
     return apiClient.get('/api/posts/mylikes/')
   },
+
+  // 发送私信
+ async sendPrivateMessage(data: PrivateMessageRequest): Promise<PrivateMessage> {
+  try {
+    const response = await apiClient.post('/api/mymessages/', data)
+    console.log('发送私信成功:', response.data)
+    return response.data.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('发送私信失败:', error.message)
+      throw new Error(`发送私信失败: ${error.message}`)
+    } else {
+      console.error('未知错误:', error)
+      throw new Error('发送私信时发生未知错误')
+    }
+  }
+},
+
+// 获取与某用户的历史消息
+async getPrivateMessagesWithUser(contactId: number): Promise<PrivateMessage[]> {
+  try {
+    const response = await apiClient.get(`/api/mymessages/get_detail/`, {
+      params: { contact_id: contactId }
+    })
+    console.log(`获取与用户 ${contactId} 的私信记录成功:`, response.data.data)
+    return response.data.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('获取私信记录失败:', error.message)
+      throw new Error(`获取私信记录失败: ${error.message}`)
+    } else {
+      console.error('未知错误:', error)
+      throw new Error('获取私信记录时发生未知错误')
+    }
+  }
+}
+
 }
