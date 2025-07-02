@@ -142,6 +142,12 @@ async getPosts(): Promise<Post[]> {
   }
 },
 
+  //获取动态详情
+  getPostDetail(id: number) {
+  return apiClient.get(`/api/posts/${id}/`)
+},
+
+
   //点赞、取消点赞接口
   likePost (postId:number){
     return apiClient.post(`/api/posts/${postId}/like/`)
