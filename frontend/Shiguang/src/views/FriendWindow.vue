@@ -28,9 +28,10 @@
         >
           <el-avatar
             :size="30"
-            :src="friend.user_b.avatar"
+            :src="getAvatarUrl(friend.user_b.avatar)"
             shape="circle"
           ></el-avatar>
+
           <span class="username">{{ friend.user_b.username }}</span>
         </el-menu-item>
       </el-sub-menu>
@@ -44,10 +45,13 @@
 
 <script lang="ts">
 import { ref, onMounted } from 'vue';
-import type { Friendship } from '@/api/index';
+import type { Friendship,User } from '@/api/index';
 import  api  from '@/api/index'; // 直接使用封装的 API
 import { ElMenu, ElMenuItem,  ElDropdown, ElDropdownMenu, ElDropdownItem, ElButton } from 'element-plus';
 import { useRouter } from 'vue-router'
+
+const baseURL = 'http://8.148.22.202:8000'
+const DefaultAvatar = new URL('@/assets/default-avatar.svg', import.meta.url).href
 
 export default {
   name: 'FriendsWindow',
@@ -65,9 +69,11 @@ export default {
 
     // 获取好友列表
     onMounted(async () => {
+
+
       try {
         const response = await api.getFriends();
-        friends.value = response; // 假设返回数据是一个好友数组
+        friends.value = response;
         console.log(friends.value)
       } catch (error) {
         console.error('获取好友列表失败:', error);
@@ -96,11 +102,17 @@ export default {
     openChat(userId)
   }
 }
+  function getAvatarUrl(avatar: string | null): string {
+  if (!avatar) return DefaultAvatar
+  if (avatar.startsWith('http')) return avatar
+  return baseURL + avatar // 拼接成完整地址
+  }
 
     return {
       active,
       friends,
-      handleSelect
+      handleSelect,
+      getAvatarUrl,
     };
   }
 };
@@ -123,6 +135,17 @@ export default {
   padding: 20px 0;
   bottom: 0;
 }
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.friend-item .el-avatar {
+  margin-left: -10px;
+}
+
 
 .content-area{
   flex: 1;

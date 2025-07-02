@@ -21,6 +21,7 @@ const error = ref<string | null>(null)
 onMounted(async () => {
   try {
     const res = await api.getPosts()
+    res.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     posts.value = res
   } catch (err) {
     error.value = '获取帖子失败，请稍后再试。'

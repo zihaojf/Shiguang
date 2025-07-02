@@ -374,6 +374,7 @@ export default defineComponent({
 }
 
 .post-full-content {
+  word-break: break-all;
   font-size: 1.1rem;
   line-height: 1.8;
   color: #444;

@@ -52,6 +52,11 @@
       @current-change="handlePageChange"
       style="margin-top: 20px; text-align: center;"
     />
+
+    <!-- 无好友申请提示 -->
+    <div v-if="requests.length === 0" class="no-requests-tip">
+      暂无好友申请
+    </div>
   </div>
 </template>
 
