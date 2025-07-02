@@ -4,7 +4,13 @@
     <div class="post-body">
       <div class="post-header">
       <div class="username">
-        <strong>{{ post.publisher.username }}</strong>
+        <router-link
+          :to="`/profile/${post.publisher.id}`"
+          class="user-link"
+          @click.stop
+        >
+          <strong>{{ post.publisher.username }}</strong>
+        </router-link>
       </div>
       <div class="timestamp">
         <p>编辑时间:{{ formatDate(post.updated_at) }}</p>

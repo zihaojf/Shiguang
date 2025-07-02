@@ -144,6 +144,10 @@ export default {
     return apiClient.get('/api/users/me/')
   },
 
+  getSpecificUser_profile(userId: number) {
+    return apiClient.get(`/api/users/${userId}/`)
+  },
+
   // 发布帖子接口
   post(data: PostRequest) {
     const formData = new FormData()

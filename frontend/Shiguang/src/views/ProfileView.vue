@@ -1,114 +1,195 @@
 <template>
-  <div class="profile-container">
-    <div class="profile-header">
-      <div class="profile-avatar-section">
-        <img
-          :src="user.avatar"
-          alt="用户头像"
-          class="profile-avatar"
-        >
-        <h2 class="profile-name">{{ user.name }}</h2>
+  <div class="profile-wrapper">
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-avatar-section">
+          <img
+            :src="user.avatar || '/default-avatar.jpg'"
+            alt="用户头像"
+            class="profile-avatar"
+            @error="handleAvatarError"
+          >
+          <h2 class="profile-name">{{ user.nickname || user.username }}</h2>
+        </div>
+
+        <div class="profile-info">
+          <div class="info-item">
+            <span class="info-label">用户名:</span>
+            <span>{{ user.username }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">注册时间:</span>
+            <span>{{ formatDate(user.register_at) }}</span>
+          </div>
+          <div v-if="user.birthday" class="info-item">
+            <span class="info-label">生日:</span>
+            <span>{{ formatBirthday(user.birthday) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">个人简介:</span>
+            <p class="info-bio">{{ user.bio || '暂无简介' }}</p>
+          </div>
+        </div>
       </div>
 
-      <div class="profile-info">
-        <div class="info-item">
-          <span class="info-label">注册时间:</span>
-          <span>{{ formatDate(user.joinDate) }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">个人简介:</span>
-          <p class="info-bio">{{ user.bio }}</p>
+      <div v-if="topPosts.length > 0" class="profile-posts">
+        <h3 class="posts-title">最受欢迎的帖子</h3>
+        <div class="post-list">
+          <div v-for="post in topPosts" :key="post.id" class="post-item">
+            <router-link :to="`/post/${post.id}`" class="post-link">
+              <h4 class="post-title">{{ post.title || '无标题' }}</h4>
+              <p class="post-content">{{ truncateContent(post.content) }}</p>
+              <div class="post-stats">
+                <span class="likes">❤️ {{ post.likes_count }} 赞</span>
+                <span class="comments">💬 {{ post.comments_count }} 评论</span>
+              </div>
+            </router-link>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="profile-posts">
-      <h3 class="posts-title">{{ user.name }}的帖子</h3>
-      <ThePost
-        :posts="userPosts"
-        :max-lines="3"
-        container-class="profile-posts-container"
-      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import ThePost from '@/components/ThePost.vue'
+import { defineComponent, ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import api from '@/api'
 
 interface User {
-  id: string
-  name: string
-  avatar: string
-  bio: string
-  joinDate: Date
+  id: number
+  username: string
+  nickname: string
+  avatar: string | null
+  bio: string | null
+  register_at: string
+  birthday: string | null
+  [key: string]: any
 }
 
 interface Post {
   id: number
   title: string
   content: string
+  likes_count: number
+  comments_count: number
+  [key: string]: any
 }
 
 export default defineComponent({
-  name: 'ProfilePage',
-  components: {
-    ThePost,
-  },
-  data() {
-    return {
-      user: {
-        id: '123',
-        name: '张三',
-        avatar: './src/assets/default-avatar.svg',//头像路径
-        bio: '这是一条普通的测试内容',
-        joinDate: new Date('2020-01-01')
-      } as User,
-      userPosts: [
-        {
-          id: 1,
-          title: '测试帖子标题',
-          content: '这是一条普通的测试内容',
-          likes: 43,
-          comments: 32
-        },
-        {
-          id: 2,
-          title: '测试帖子标题',
-          content: '这是一条普通的测试内容',
-          likes: 63,
-          comments: 23
-        },
-        {
-          id: 3,
-          title: '超长标题需要测试省略号效果看看是否正常工作',
-          content: '这是一条非常长的内容，应该会被截断并显示省略号。'.repeat(10),
-          likes: 1023,
-          comments: 324,
-        }
-      ] as Post[]
+  name: 'ProfileView',
+  props: {
+    userId: {
+      type: Number,
+      required: true
     }
   },
-  methods: {
-    formatDate(date: Date): string {
-      return date.toLocaleDateString()
+  setup(props) {
+    const user = ref<User>({
+      id: 0,
+      username: '',
+      nickname: '',
+      avatar: null,
+      bio: null,
+      register_at: '',
+      birthday: null
+    })
+
+    const topPosts = ref<Post[]>([])
+    const loading = ref(false)
+
+    const fetchUserProfile = async () => {
+      try {
+        loading.value = true
+        const response = await api.getSpecificUser_profile(props.userId)
+        console.log('enter',response)
+        user.value = response.data.data
+      } catch (error) {
+        ElMessage.error('获取用户信息失败')
+        console.error('Error fetching user profile:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const fetchTopPosts = async () => {
+      try {
+        //按点赞数排序
+        const response = await api.getUserPosts({
+          params: {
+            ordering: '-likes_count',
+            page_size: 3
+          }
+        })
+        topPosts.value = response.data.results || response.data.slice(0, 3)
+      } catch (error) {
+        console.error('Error fetching top posts:', error)
+      }
+    }
+
+    const formatDate = (dateString: string) => {
+      return new Date(dateString).toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
+    }
+
+    const formatBirthday = (dateString: string) => {
+      const date = new Date(dateString)
+      return `${date.getMonth() + 1}月${date.getDate()}日`
+    }
+
+    const truncateContent = (content: string, length = 100) => {
+      if (!content) return ''
+      return content.length > length
+        ? content.substring(0, length) + '...'
+        : content
+    }
+
+    const handleAvatarError = (e: Event) => {
+      const img = e.target as HTMLImageElement
+      img.src = '/default-avatar.jpg'
+    }
+
+    onMounted(() => {
+      fetchUserProfile()
+      fetchTopPosts()
+    })
+
+    return {
+      user,
+      topPosts,
+      loading,
+      formatDate,
+      formatBirthday,
+      truncateContent,
+      handleAvatarError
     }
   }
 })
 </script>
 
 <style scoped>
-.profile-container {
+.profile-wrapper {
+  width: 99vw;
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  margin-top: 100px;
+  min-height: calc(100vh - 100px);
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.profile-container {
   width: 60vw;
   max-width: 1000px;
-  margin: 100px 35% ;
-  padding: 20px;
+  padding: 30px;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background: white;
+
+  transition: all 0.3s ease;
 }
 
 .profile-header {
@@ -116,6 +197,7 @@ export default defineComponent({
   grid-template-columns: 200px 1fr;
   gap: 40px;
   margin-bottom: 40px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .profile-avatar-section {
@@ -130,12 +212,15 @@ export default defineComponent({
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 15px;
-  border: 3px solid #eee;
+  border: 3px solid #f0f0f0;
+  background-color: #f5f5f5;
 }
 
 .profile-name {
   margin: 0;
   text-align: center;
+  font-size: 1.5rem;
+  color: #333;
 }
 
 .profile-info {
@@ -144,16 +229,20 @@ export default defineComponent({
 
 .info-item {
   margin-bottom: 15px;
+  line-height: 1.6;
 }
 
 .info-label {
   font-weight: bold;
   margin-right: 10px;
+  color: #666;
 }
 
 .info-bio {
   margin: 5px 0 0 0;
   line-height: 1.6;
+  color: #444;
+  white-space: pre-line;
 }
 
 .profile-posts {
@@ -165,10 +254,65 @@ export default defineComponent({
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+  color: #333;
+}
+
+.post-list {
+  display: grid;
+  gap: 20px;
+}
+
+.post-item {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  transition: transform 0.2s;
+}
+
+.post-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-title {
+  margin: 0 0 10px 0;
+  color: #1890ff;
+  font-size: 1.1rem;
+}
+
+.post-content {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.post-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.likes, .comments {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .profile-container {
+    width: 90vw;
+    margin: 20px auto;
+    padding: 20px;
+  }
+
   .profile-header {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -184,6 +328,10 @@ export default defineComponent({
     width: 80px;
     height: 80px;
     margin-bottom: 0;
+  }
+
+  .profile-name {
+    text-align: left;
   }
 }
 </style>

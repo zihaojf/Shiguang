@@ -25,7 +25,9 @@ import FriendRequest from '@/components/FriendRequest.vue'//处理好友申请�
 
 //测试用，不重要
 import TestPostView from '@/views/testPostView.vue'
+
 import SearchResults from '@/views/SearchResults.vue'
+import api from '@/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -93,10 +95,15 @@ const router = createRouter({
       component: TestPostView,
     },
     {
-      path: '/profile',
+      path: '/profile/:userId',
       name: 'Profile',
       component: ProfileView,
+      props: true,
       meta:{requiresAuth:true},
+    },
+    {
+      path: '/profile/me',
+      name: 'myProfile',
     },
     {
       path: '/post/:id',
@@ -135,7 +142,7 @@ const router = createRouter({
 })
 
 
-router.beforeEach((to, from,next) => {
+router.beforeEach(async (to, from,next) => {
  const token = localStorage.getItem('token')
 
   // 不存在 token，说明未登录
@@ -158,6 +165,17 @@ router.beforeEach((to, from,next) => {
   // 如果用户已登录，不允许再访问 login
   if (token && to.path === '/login') {
     return next('/')
+  }
+
+  // 自动跳转到当前用户的 profile 页面
+  if (to.path === '/profile/me') {
+    try {
+      const response = await api.getuser_profile()
+      return next(`/profile/${response.data.data.id}`)
+    } catch (error) {
+      console.error('获取用户信息失败', error)
+      return next('/login') // 获取失败跳回登录页
+    }
   }
 
   next()

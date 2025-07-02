@@ -17,7 +17,15 @@
             @error="handleAvatarError"
           >
           <div class="user-details">
-            <span class="username">{{ item.liker.nickname || item.liker.username }}</span>
+            <span class="username">
+              <router-link
+                :to="`/profile/${item.liker.id}`"
+                class="user-link"
+                @click.stop
+              >
+                {{ item.liker.nickname || item.liker.username }}
+              </router-link>
+            </span>
             <span class="timestamp">{{ formatDate(item.create_at) }}</span>
           </div>
         </div>

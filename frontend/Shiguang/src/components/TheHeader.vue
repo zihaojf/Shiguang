@@ -131,7 +131,7 @@ onMounted(async () => {
 
 // 跳转到个人资料页面
 const goToProfile = () => {
-  router.push('/profile')
+  router.push('/profile/me')
 }
 
 //跳转登录页
