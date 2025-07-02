@@ -245,11 +245,9 @@ async addFriend(data: AddFriendRequest) {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('请求失败:', error.message);
-      console.error(data);
-      throw new Error(`添加好友失败: ${error.message}`);
+      console.error('请求失败:', error.response?.data);
+      throw error;
     } else {
-      console.error('未知错误:', error);
       throw new Error('发生未知错误');
     }
   }
@@ -311,6 +309,11 @@ async addFriend(data: AddFriendRequest) {
   //搜索
   searchPosts(keyword:string){
     return apiClient.get(`/api/posts/search/?q=${encodeURIComponent(keyword)}`)
+  },
+
+  //搜索用户
+  searchUsers(keyword:string){
+    return apiClient.get(`/api/users/search/?q=${encodeURIComponent(keyword)}`)
   },
 
   //获取帖子评论接口

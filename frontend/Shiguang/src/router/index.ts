@@ -107,6 +107,7 @@ const router = createRouter({
     {
       path: '/profile/me',
       name: 'myProfile',
+      component:'',
     },
     {
       path: '/post/:id',

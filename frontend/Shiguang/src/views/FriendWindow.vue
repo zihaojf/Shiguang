@@ -8,6 +8,7 @@
       text-color="#333"
       active-text-color="#409EFF"
       @select="handleSelect"
+      :default-openeds="['3']"
     >
       <el-menu-item index="1">
         好友申请
