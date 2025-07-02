@@ -8,6 +8,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id','publisher','title','content','image','likes_count','comments_count','created_at','updated_at','visibility']
+        ordering='-created_at'
 
     def validate_image(self, value):
         """

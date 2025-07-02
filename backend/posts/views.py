@@ -2,9 +2,10 @@ from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from urllib3 import request
 
 from .models import Post,Like
-from .serializers import PostSerializer
+from .serializers import PostSerializer, LikeSerializer
 from friendship.models import Friendship
 from django.db.models import Q
 
@@ -109,5 +110,41 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response({'detail':'你还没有点过赞'},status=status.HTTP_400_BAD_REQUEST)
         like.delete()
         return Response({'detail':'取消点赞成功'},status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'])
+    def check_like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        # 检查用户是否登录
+        if not user.is_authenticated:
+            return Response({'detail': '需要登录才能查看点赞状态'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        publisher = post.publisher
+
+        # 权限判断（和 like/unlike 一致）
+        if publisher.profile_visibility == 'privacy' and publisher != user:
+            return Response({'detail': '该用户设置了私密账户，你不能查看'}, status=status.HTTP_403_FORBIDDEN)
+
+        if (publisher.profile_visibility == 'friend' or post.visibility == 'friend') and publisher != user:
+            is_friend = Friendship.objects.filter(
+                Q(user_a=publisher, user_b=user, status='已接受')
+            ).exists()
+            if not is_friend:
+                return Response({'detail': '你需要是好友才能查看点赞状态'}, status=status.HTTP_403_FORBIDDEN)
+
+        is_liked = Like.objects.filter(post=post, liker=user).exists()
+        return Response({'is_liked': is_liked}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'])
+    def mylikes(self, request):
+        user = request.user
+        # 检查用户是否登录
+        if not user.is_authenticated:
+            return Response({'detail': '需要登录才能查看他人点赞情况'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        queryset = Like.objects.filter(post__user=user).order_by('-created_at')
+        serializer = LikeSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 

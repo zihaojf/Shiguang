@@ -30,7 +30,8 @@ const processQueue = (error: any, token: string | null = null) => {
 apiClient.interceptors.request.use(
   config => {
     const token = getAccessToken()
-    if (token && !isTokenExpired(token)) {
+    if (token) {
+      // 无论是否过期，都先贴给后端，让后端返 401
       config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
@@ -39,44 +40,62 @@ apiClient.interceptors.request.use(
 )
 
 apiClient.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config
-    if (error.response?.status === 401 && !originalRequest._retry) {
+  r => r,
+  async err => {
+    const originalRequest = err.config
+    // 只有第一次 401 且没 retry，才走刷新
+    if (err.response?.status === 401 && !originalRequest._retry) {
+      console.log('[401 拦截] 触发刷新流程')
+      originalRequest._retry = true
+
+      // 如果正在刷新，就排队等新的 token
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject })
-        }).then(token => {
-          originalRequest.headers['Authorization'] = `Bearer ${token}`
+        return new Promise((res, rej) => {
+          failedQueue.push({ resolve: res, reject: rej })
+        })
+        .then(tok => {
+          originalRequest.headers['Authorization'] = `Bearer ${tok}`
           return apiClient(originalRequest)
-        }).catch(err => Promise.reject(err))
+        })
       }
 
-      originalRequest._retry = true
       isRefreshing = true
-
-      try {
-        const refreshToken = getRefreshToken()
-        const res = await axios.post('http://8.148.22.202:8000/api/token/refresh/', {
-          refresh: refreshToken,
-        })
-
-        const { access, refresh } = res.data
-        setTokens(access, refresh)
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`
-        processQueue(null, access)
-        return apiClient(originalRequest)
-      } catch (err) {
-        processQueue(err, null)
+      const refreshToken = getRefreshToken()
+      if (!refreshToken) {
         clearTokens()
         router.push('/login')
-        return Promise.reject(err)
+        return Promise.reject('No refresh token')
+      }
+
+      try {
+        console.log('› 发起 /token/refresh 请求, body=', { refresh: refreshToken })
+        const { data } = await apiClient.post('/api/token/refresh/', { refresh: refreshToken })
+        console.log('‹ refresh 返回', data)
+
+        const newAccess = data.data.access
+        if (!newAccess) {
+          throw new Error('没有拿到新的 access')
+        }
+
+        // 保留旧的 refresh
+        setTokens(newAccess, refreshToken)
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`
+        processQueue(null, newAccess)
+
+        // 重试原始请求
+        originalRequest.headers['Authorization'] = `Bearer ${newAccess}`
+        return apiClient(originalRequest)
+      } catch (e) {
+        processQueue(e, null)
+        clearTokens()
+        router.push('/login')
+        return Promise.reject(e)
       } finally {
         isRefreshing = false
       }
     }
 
-    return Promise.reject(error)
+    return Promise.reject(err)
   }
 )
 

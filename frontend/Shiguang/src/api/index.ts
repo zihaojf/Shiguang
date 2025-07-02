@@ -14,11 +14,17 @@ interface LoginResponse {
   refresh: string
 }
 
-interface PostRequest {
-  title: string
-  content: string
-  visibility: string
+interface RegisterRequest {
+  username: string
+  password: string
 }
+
+interface RegisterResponse {
+  refresh: string
+  access: string
+  user: User          // 暂时没有问题
+}
+
 
 interface PostResponse {
   status: string
@@ -70,10 +76,11 @@ export interface Post {
   visibility: "public" | "friend" | "private"; // Based on the data, seems to be these values
 }
 
-interface PostRequest {
-  status: string;
-  code: number;
-  data: Post[];
+export interface PostRequest {
+  title: string
+  content: string
+  visibility: 'public' | 'friend' | 'private'
+  image: File | null
 }
 
 export interface Friendship {
@@ -127,20 +134,32 @@ export default {
     return apiClient.post<LoginResponse>('/api/token/', data)
   },
 
+  // 注册接口
+  register(data: RegisterRequest) {
+    return apiClient.post<RegisterResponse>('/api/register/', data)
+  },
+
   // 获取用户个人资料接口
   getuser_profile() {
-    return apiClient.get('/api/users/')
+    return apiClient.get('/api/users/me/')
   },
 
   // 发布帖子接口
   post(data: PostRequest) {
-    return apiClient.post<PostResponse>('/api/posts/', data
-    )
+    const formData = new FormData()
+    formData.append('title', data.title)
+    formData.append('content', data.content)
+    formData.append('visibility', data.visibility)
+    if (data.image) {
+      formData.append('image', data.image)
+    }
+
+    return apiClient.post('/api/posts/', formData)
   },
 
   //修改更新用户个人资料接口
-  updateuser_profile(data: FormData) {
-    return apiClient.patch('/api/users/{id}', data)
+  updateuser_profile(id: number, data: FormData) {
+    return apiClient.patch(`/api/users/${id}/`, data)
   },
 
 
@@ -240,4 +259,22 @@ async addFriend(data: AddFriendRequest) {
       }
     }
   },
+  //点赞、取消点赞接口
+  likePost (postId:number){
+    return apiClient.post(`/api/posts/${postId}/like/`)
+  },
+
+  unlikePost(postId:number){
+    return apiClient.delete(`/api/posts/${postId}/unlike/`)
+  },
+  checkLikeStatus(postId:number){
+    return apiClient.get(`/api/posts/${postId}/check_like/`)
+  },
+
+  //搜索
+  searchPosts(keyword:string){
+    return apiClient.get(`/api/posts/search/?q=${encodeURIComponent(keyword)}`)
+  }
+
+
 }

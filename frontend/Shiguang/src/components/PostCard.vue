@@ -1,6 +1,6 @@
 <template>
   <div class="post-card" @click="goToDetail">
-    <img :src="post.publisher.avatar" alt="头像" class="avatar" />
+    <img :src="post.publisher.avatar || DefaultAvatar" alt="头像" class="avatar" />
     <div class="post-body">
       <div class="post-header">
       <div class="username">
@@ -14,10 +14,15 @@
       <p>{{ post.content }}</p>
     </div>
 
+    <!-- 帖子图片 -->
+    <div v-if="post.image" class="post-image">
+      <img :src="post.image" alt="帖子图片" class="image" />
+    </div>
+
     <div class="post-footer">
-      <div class="like-wrapper" @mouseenter="isLikeHovered = true" @mouseleave="isLikeHovered = false">
+      <div class="like-wrapper" @mouseenter="isLikeHovered = true" @mouseleave="isLikeHovered = false " @click.stop="toggleLike" >
         <div class="like-circle">
-          <img :src="isLikeHovered ? likeIconHover : likeIcon" alt="点赞" class="icon" />
+          <img :src="isLiked ? likedIcon :(isLikeHovered ? likeIconHover : likeIcon)" alt="点赞" class="icon" />
         </div>
         <span class="like-count">{{ post.likes_count}}</span>
       </div>
@@ -36,7 +41,9 @@
 
 <script lang="ts">
 import { useRouter } from 'vue-router'
-import {ref} from 'vue'
+import {ref,onMounted} from 'vue'
+import api from '@/api/index'
+import { ElMessage ,ElMessageBox} from 'element-plus'
 
 export default {
   name: 'PostCard',
@@ -57,24 +64,91 @@ export default {
     const likeIconHover = new URL('@/assets/like-icon-hover.svg', import.meta.url).href
     const CommentIcon = new URL('@/assets/comment-icon.svg', import.meta.url).href
     const CommentIconHover = new URL('@/assets/comment-icon-hover.svg', import.meta.url).href
+    const DefaultAvatar = new URL('@/assets/default-avatar.svg',import.meta.url).href
+    const likedIcon = new URL('@/assets/liked-icon.svg',import.meta.url).href
 
     function formatDate(dateStr: string) {
       return new Date(dateStr).toLocaleString()
     }
 
     function goToDetail() {
-      router.push(`/post/${props.post.id}`)
+      const postId = props.post.id
+      const base = import.meta.env.BASE_URL
+      const url = `${window.location.origin}${base}post/${postId}`
+      window.open(url,'_blank')
     }
+
+    // 检查当前用户是否已点赞该帖子
+    const fetchLikeStatus = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if(token) {
+          const res = await api.checkLikeStatus(props.post.id)
+          isLiked.value = res.data.data.is_liked
+        }
+        console.log('检查点赞状态',isLiked)
+      } catch (err) {
+        const token = localStorage.getItem('tokne')
+        //if(!token) ElMessage.error('操作点赞失败，请稍后再试')
+        console.error('检查点赞状态失败:', token)
+      }
+    }
+
+    // 点赞/取消点赞切换
+    const toggleLike = async () => {
+      const token = localStorage.getItem('token')
+      if(!token){
+        ElMessageBox.confirm(
+        '您尚未登录，是否前往登录页面？',
+        '提示',
+        {
+          confirmButtonText: '去登录',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+        ).then(() => {
+          // 跳转到登录页
+          router.push('/login')
+        }).catch(() => {
+          // 用户点击取消
+        })
+        return
+      }
+
+      try {
+        if (isLiked.value) {
+          // 已点赞，执行取消点赞
+          await api.unlikePost(props.post.id)
+          props.post.likes_count -= 1
+        } else {
+          // 未点赞，执行点赞
+          await api.likePost(props.post.id)
+          props.post.likes_count += 1
+        }
+        isLiked.value = !isLiked.value
+      } catch (err) {
+        console.error('操作点赞失败:', err)
+      }
+    }
+
+    onMounted(async () => {
+      await fetchLikeStatus()
+    })
+
 
     return {
       formatDate,
       goToDetail,
       isLikeHovered,
       isCommentHovered,
+      isLiked,
       likeIcon,
       likeIconHover,
+      likedIcon,
       CommentIcon,
       CommentIconHover,
+      DefaultAvatar,
+      toggleLike,
     }
   }
 }
@@ -126,13 +200,13 @@ export default {
 
 .username {
   display: flex;
-  font-size: 18px;
+  font-size: 20px;
   font-family: '微软雅黑';
   color: #333;
   font-weight: bold;
 }
 .username:hover{
-  font-size: 18px;
+  font-size: 20px;
   font-family: '微软雅黑';
   color: #ff9f43;
   font-weight: bold;
@@ -151,6 +225,20 @@ export default {
   min-height: 40px;
   flex: 1;
   overflow-wrap: break-word;
+}
+
+/*图片 */
+
+.post-image {
+  margin-top: 8px;
+  max-width: 100%;
+}
+.image {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 

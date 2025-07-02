@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isLoggedIn} from '@/api/auth'
-import { ElMessage } from 'element-plus'
+import { ElMessage,ElMessageBox} from 'element-plus'
 
 //登录和注册界面
 import LoginPageView from '@/views/LoginView.vue'
@@ -25,6 +25,7 @@ import FriendRequest from '@/components/FriendRequest.vue'//处理好友申请�
 
 //测试用，不重要
 import TestPostView from '@/views/testPostView.vue'
+import SearchResults from '@/views/SearchResults.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -95,12 +96,20 @@ const router = createRouter({
       path: '/profile',
       name: 'Profile',
       component: ProfileView,
+      meta:{requiresAuth:true},
     },
     {
       path: '/post/:id',
       name: 'Post',
       component: PostView,
-    },//后续修改
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: SearchResults,
+    },
+
+    //后续修改
     {
       path: '/settings',
       component: SettingsView,
@@ -126,19 +135,30 @@ const router = createRouter({
 })
 
 
-router.beforeEach((to, from, next) => {
-  const loggedIn = isLoggedIn()
-  console.log(isLoggedIn())
-  //未登录用户不允许访问编辑、消息、好友、设置页面
-  if (!loggedIn && to.meta.requiresAuth) {
-    ElMessage.warning('请先登录后再访问该页面')
-    return next('/')
-  }
-  //已登录状态访问登陆页面
-  if (loggedIn && to.path === '/login') {
-    return next('/')
+router.beforeEach((to, from,next) => {
+ const token = localStorage.getItem('token')
+
+  // 不存在 token，说明未登录
+  if (!token && to.meta.requiresAuth) {
+    ElMessageBox.confirm(
+      '您尚未登录，是否前往登录页面？',
+      '提示',
+      {
+        confirmButtonText: '去登录',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    ).then(() => {
+      router.push('/login')
+    }).catch(() => {})
+
+    return next('/') // 停在首页
   }
 
+  // 如果用户已登录，不允许再访问 login
+  if (token && to.path === '/login') {
+    return next('/')
+  }
 
   next()
 })

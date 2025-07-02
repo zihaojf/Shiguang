@@ -8,6 +8,7 @@ from posts.models import Post
 from .serializers import CommentSerializer
 from .models import Comment
 from friendship.models import Friendship
+from django.db.models import Q
 
 class CommentPagination(PageNumberPagination):
     page_size = 10
@@ -98,4 +99,14 @@ class CommentViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(methods=['get'], detail=False)
+    def myreplies(self,request):
+        """
+        获取所有回复当前用户的评论
+        """
+        queryset = Comment.objects.filter(parent_comment_user=request.user).order_by('-created_at')
+
+        serializer = CommentSerializer(queryset, many=True)
         return Response(serializer.data)

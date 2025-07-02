@@ -75,6 +75,7 @@ import { ElMessage, ElNotification } from 'element-plus'
 import api from '@/api'
 
 interface UserProfile {
+  id: number
   avatar: string | null
   nickname: string
   birthday: string | null
@@ -89,6 +90,7 @@ export default defineComponent({
   setup() {
     // 表单数据
     const form = ref<UserProfile>({
+      id: 0,
       avatar: null,
       nickname: '',
       birthday: null,
@@ -110,16 +112,22 @@ export default defineComponent({
           throw new Error('未登录')
         }
 
-        const response = await api.getuser_profile(token)
-        const userData = response.data
+        const response = await api.getuser_profile()
+        const userData = response.data.data
+
+        console.log('响应对象',response)
+        console.log('响应状态码',response.status)
+        console.log('响应数据',response.data)
 
         form.value = {
+          id: userData.id,
           avatar: userData.avatar,
           nickname: userData.nickname,
           birthday: userData.birthday,
           bio: userData.bio
         }
 
+        console.log('nickname',form.value.nickname)
         originalData.value = {...form.value}
       } catch (error) {
         ElMessage.error('获取用户信息失败')
@@ -156,15 +164,21 @@ export default defineComponent({
 
     // 保存表单
     const saveProfile = async() => {
+
       if (!hasChanges.value || isSaving.value) return
 
       isSaving.value = true
 
 
       try {
+        console.log('enter')
         const token = localStorage.getItem('token')
         if(!token) {
           throw new Error('未登录')
+        }
+
+        if(!form.value.id) {
+          throw new Error('用户ID不存在')
         }
 
         const formData = new FormData()
@@ -186,7 +200,12 @@ export default defineComponent({
         }
 
         //发送更新请求
-        const response = await api.updateuser_profile(token, formData)
+        console.log('id',form.value.id)
+        const response = await api.updateuser_profile(form.value.id, formData)
+        console.log('enter')
+
+
+
         originalData.value = {...form.value}
         if(response.data.avatar) {
           originalData.value.avatar = response.data.avatar
