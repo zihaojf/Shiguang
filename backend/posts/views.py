@@ -2,9 +2,10 @@ from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from urllib3 import request
 
 from .models import Post,Like
-from .serializers import PostSerializer
+from .serializers import PostSerializer, LikeSerializer
 from friendship.models import Friendship
 from django.db.models import Q
 
@@ -134,5 +135,16 @@ class PostViewSet(viewsets.ModelViewSet):
 
         is_liked = Like.objects.filter(post=post, liker=user).exists()
         return Response({'is_liked': is_liked}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'])
+    def mylikes(self, request):
+        user = request.user
+        # 检查用户是否登录
+        if not user.is_authenticated:
+            return Response({'detail': '需要登录才能查看他人点赞情况'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        queryset = Like.objects.filter(post__user=user).order_by('-created_at')
+        serializer = LikeSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
