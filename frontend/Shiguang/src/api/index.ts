@@ -44,7 +44,7 @@ export interface PostData {
   updated_at: string;
 }
 
-interface User {
+export interface User {
   id: number;
   last_login: string | null;
   is_superuser: boolean;
@@ -358,6 +358,18 @@ async getPrivateMessagesWithUser(contactId: number): Promise<PrivateMessage[]> {
       throw new Error('获取私信记录时发生未知错误')
     }
   }
-}
+},
+  // 获取评论接口
+  getCommentsByPostId(postId:number){
+    return apiClient.get('/api/comments/',{
+      params:{
+        post:postId
+      }
+    })
+  },
+  // 创建评论
+  createComment(payload: { content: string, post: number, parent_comment?: number|null }) {
+    return apiClient.post(`/api/comments/`, payload)
+  }
 
 }
