@@ -83,6 +83,45 @@ export interface PostRequest {
   image: File | null
 }
 
+export interface Friendship {
+  id: number;
+  user_a: User;
+  user_b: User;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  remark: string;
+}
+
+interface FriendResponse {
+  status: string;
+  code: number;
+  data: {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: Friendship[];
+  };
+}
+
+// 添加好友请求类型
+interface AddFriendRequest {
+  user_b: string; // 好友用户名（必填）
+  remark?: string; // 备注（可选）
+}
+
+// 好友申请列表响应类型
+interface FriendRequestResponse {
+  status: string;
+  code: number;
+  data: {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: Friendship[];
+  };
+}
+
 // // 创建 axios 实例
 // const apiClient: AxiosInstance = axios.create({
 //   baseURL: 'http://8.148.22.202:8000', // Django 后端地址
@@ -119,8 +158,8 @@ export default {
   },
 
   //修改更新用户个人资料接口
-  updateuser_profile(id: number, data: FormData) {
-    return apiClient.patch(`/api/users/${id}/`, data)
+  updateuser_profile(userId: number, data: FormData) {
+    return apiClient.patch(`/api/users/${userId}/`, data)
   },
 
 
@@ -148,6 +187,84 @@ async getPosts(): Promise<Post[]> {
 },
 
 
+//获取好友列表
+async getFriends(): Promise<Friendship[]> {
+  try {
+    const response = await apiClient.get<FriendResponse>('/api/friendships/friends/');
+
+    // 返回好友列表数组
+    console.log('获取好友列表成功:', response.data.data.results);
+    return response.data.data.results;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('请求失败:', error.message);
+      throw new Error(`获取好友列表失败: ${error.message}`);
+    } else {
+      console.error('未知错误:', error);
+      throw new Error('发生未知错误');
+    }
+  }
+},
+
+// 添加好友接口
+async addFriend(data: AddFriendRequest) {
+  try {
+    const response = await apiClient.post('/api/friendships/', data);
+    console.log('添加好友成功:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('请求失败:', error.message);
+      console.error(data);
+      throw new Error(`添加好友失败: ${error.message}`);
+    } else {
+      console.error('未知错误:', error);
+      throw new Error('发生未知错误');
+    }
+  }
+},
+
+// 获取好友申请列表
+  async getFriendRequests(page = 1) {
+    try {
+      const response = await apiClient.get<FriendRequestResponse>(
+        `/api/friendships/friend_requests/?page=${page}`
+      );
+      console.log('获取好友申请成功:', response.data.data.results);
+      return response.data.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('请求失败:', error.message);
+        throw new Error(`获取好友申请失败: ${error.message}`);
+      } else {
+        console.error('未知错误:', error);
+        throw new Error('发生未知错误');
+      }
+    }
+  },
+
+  // 处理好友申请（接受/拒绝）
+  async handleFriendRequest(id: number, action: 'accept' | 'reject') {
+    try {
+      const url =
+        action === 'accept'
+          ? `/api/friendships/${id}/accept/`
+          : `/api/friendships/${id}/reject/`;
+
+      const response = await apiClient.post(url, { id });
+
+      console.log(`${action === 'accept' ? '接受' : '拒绝'}好友申请成功`);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('请求失败:', error.message);
+        throw new Error(`处理好友申请失败: ${error.message}`);
+      } else {
+        console.error('未知错误:', error);
+        throw new Error('发生未知错误');
+      }
+    }
+  },
   //点赞、取消点赞接口
   likePost (postId:number){
     return apiClient.post(`/api/posts/${postId}/like/`)
@@ -163,7 +280,20 @@ async getPosts(): Promise<Post[]> {
   //搜索
   searchPosts(keyword:string){
     return apiClient.get(`/api/posts/search/?q=${encodeURIComponent(keyword)}`)
-  }
+  },
 
+  //获取帖子评论接口
+  commentGet(postId: number) {
+    return apiClient.get(`/api/comments/${postId}`)
+  },
 
+  //获取回复评论接口
+  myrepliesGet() {
+    return apiClient.get('/api/comments/myreplies/')
+  },
+
+  //获取帖子点赞接口
+  likesGet() {
+    return apiClient.get('/api/posts/mylikes/')
+  },
 }

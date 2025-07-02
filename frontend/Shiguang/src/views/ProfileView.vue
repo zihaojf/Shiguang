@@ -61,7 +61,7 @@ export default defineComponent({
       user: {
         id: '123',
         name: '张三',
-        avatar: './src/assets/touxiang.jpeg',//头像路径
+        avatar: './src/assets/default-avatar.svg',//头像路径
         bio: '这是一条普通的测试内容',
         joinDate: new Date('2020-01-01')
       } as User,

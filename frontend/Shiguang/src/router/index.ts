@@ -20,6 +20,8 @@ import ProfileSettings from '@/components/ProfileSettings.vue'//设置个人资�
 import SecuritySettings from '@/components/SecuritySettings.vue'//设置个人安全信息
 import CommentsOnSelf from '@/components/CommentsOnSelf.vue'//查看他人对自己的评论
 import LikeList from '@/components/LikeList.vue'//查看点赞自己的用户
+import AddFriend from '@/components/AddFriend.vue'//添加好友页面
+import FriendRequest from '@/components/FriendRequest.vue'//处理好友申请页面
 
 //测试用，不重要
 import TestPostView from '@/views/testPostView.vue'
@@ -74,6 +76,16 @@ const router = createRouter({
       name:'users',
       component:UsersWindow,
       meta:{requiresAuth:true},
+      children:[
+        {
+          path:'addfriend',
+          component:AddFriend
+        },
+        {
+          path:'request',
+          component:FriendRequest
+        }
+      ]
     },
     {
       path: '/test-post',
