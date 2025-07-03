@@ -2,11 +2,11 @@ from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
 from .models import Post,Like
 from .serializers import PostSerializer, LikeSerializer
 from friendship.models import Friendship
 from django.db.models import Q
+from users.models import User
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -146,11 +146,38 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = LikeSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['GET'], permission_classes=[AllowAny], url_path='user-posts')
+    def user_posts(self, request):
+        user = request.user
+        user_id = request.query_params.get('user_id')
+
+        if not user_id:
+            return Response({'detail': '必须提供用户ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
+
+        # 隐私设置权限判断
+        if target_user.profile_visibility == 'privacy' and target_user != user:
+            return Response({'detail': '该用户设置了私密账户，你不能查看其动态'}, status=status.HTTP_403_FORBIDDEN)
+
+        if target_user.profile_visibility == 'friend' and target_user != user:
+            is_friend = Friendship.objects.filter(
+                Q(user_a=target_user, user_b=user, status='已接受') |
+                Q(user_a=user, user_b=target_user, status='已接受')
+            ).exists()
+            if not is_friend:
+                return Response({'detail': '你需要是好友才能查看该用户的动态'}, status=status.HTTP_403_FORBIDDEN)
+
+        posts = Post.objects.filter(publisher=target_user).order_by('-created_at')
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated], url_path='my-posts')
     def my_posts(self,request):
         user = self.request.user
         posts = Post.objects.filter(publisher=user).order_by('-created_at')
         serializer = self.get_serializer(posts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-

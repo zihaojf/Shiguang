@@ -11,7 +11,7 @@
       <div v-for="item in likes" :key="item.id" class="like-item">
         <div class="user-info">
           <img
-            :src="item.liker.avatar || '/src/assets/default-avatar.svg'"
+            :src="item.liker.avatar!"
             alt="用户头像"
             class="avatar"
             @error="handleAvatarError"

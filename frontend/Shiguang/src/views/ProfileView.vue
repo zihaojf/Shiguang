@@ -110,7 +110,7 @@ export default defineComponent({
 
     const fetchTopPosts = async () => {
       try {
-        const response = await api.getUserPosts()
+        const response = await api.getSpecificUserPost(props.userId)
         posts.value = response.data.data || response.data.slice(0, 3)
         console.log('posts:',posts.value)
       } catch (error) {

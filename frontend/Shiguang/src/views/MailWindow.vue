@@ -40,7 +40,7 @@ export default defineComponent({
 <style scoped>
 .mail-container {
   display: flex;
-  width: 100vw;
+  width: 99vw;
   background-color: #f5f7fa;
   margin-top: 100px;
 }

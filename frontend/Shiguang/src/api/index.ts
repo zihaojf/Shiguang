@@ -227,6 +227,15 @@ getUserPosts() {
   return apiClient.get(`/api/posts/my-posts/`)
 },
 
+//获取特定用户动态列表
+getSpecificUserPost(userId:number){
+  return apiClient.get('/api/posts/user-posts/', {
+    params: {
+      userid: userId
+    }
+  })
+},
+
 
 //获取好友列表
 async getFriends(): Promise<Friendship[]> {
