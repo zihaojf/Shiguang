@@ -98,10 +98,10 @@ interface NavIcon {
 
 // 模拟导航图标数据
 const navIcons = ref<NavIcon[]>([
-  { name: 'Home', component: defineAsyncComponent(() => import('./icons/HomeIcon.vue')) },
-  { name: 'edit', component: defineAsyncComponent(() => import('./icons/EditIcon.vue')) },
-  { name: 'mail', component: defineAsyncComponent(() => import('./icons/MailIcon.vue')) },
-  { name: 'users', component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue')) },
+  { name: 'Home', component: defineAsyncComponent(() => import('./icons/HomeIcon.vue'))},
+  { name: 'edit', component: defineAsyncComponent(() => import('./icons/EditIcon.vue'))},
+  { name: 'mail', component: defineAsyncComponent(() => import('./icons/MailIcon.vue'))},
+  { name: 'users', component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue'))},
 ])
 
 const searchQuery = ref('')
@@ -171,10 +171,14 @@ const handleNavClick = (icon: NavIcon) => {
 
 // 监听路由变化，自动更新 active 状态
 watchEffect(() => {
-  const currentName = route.name as string
+  const currentPath = route.path
 
   navIcons.value.forEach(icon => {
-    icon.active = icon.name === currentName
+    if (icon.name === 'Home') {
+      icon.active = currentPath === '/' // 精准匹配首页
+    } else {
+      icon.active = currentPath.startsWith(`/${icon.name}`)
+    }
   })
 })
 
