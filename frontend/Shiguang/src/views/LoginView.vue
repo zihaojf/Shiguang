@@ -57,6 +57,7 @@ import { isAxiosError } from 'axios'
 import { ElNotification } from 'element-plus'
 import { jwtDecode } from 'jwt-decode'
 
+
 export default {
   name: 'LoginView',
   data() {
@@ -121,7 +122,9 @@ export default {
         this.loading = false
       }
     },
+
   },
+
 }
 </script>
 

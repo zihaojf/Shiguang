@@ -5,8 +5,9 @@
       ref="form"
       :model="formData"
       :rules="rules"
-      label-width="500px"
       @submit.prevent="submitForm"
+      class="form"
+      label-position="top"
     >
       <!-- 用户名 -->
       <el-form-item label="好友用户名" prop="user_b">
@@ -183,25 +184,66 @@ const resetForm = () => {
 
 <style scoped>
 .add-friend-container {
-  margin-top: 500px;
-  margin-left: 200px;
+  max-width: 500px;
   margin: 40px auto;
-  padding: 20px;
+  padding: 24px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.el-form-item:last-child {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+/* 用户搜索项样式 */
 .user-suggestion-item {
   display: flex;
   align-items: center;
+  padding: 4px 0;
 }
 
 .user-suggestion-item .avatar {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   margin-right: 8px;
 }
 
+/* ✅ 手机端优化 */
+@media (max-width: 768px) {
+  .add-friend-container {
+    margin: 20px 16px;
+    padding: 16px;
+    width: auto;
+    box-shadow: none;
+    border: 1px solid #eee;
+  }
+
+  .form {
+    width: 100%;
+  }
+
+  .el-form-item:last-child {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .el-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .user-suggestion-item span {
+    font-size: 14px;
+  }
+}
 </style>

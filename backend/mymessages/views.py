@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from users.serializers import UserSerializer
+from rest_framework.exceptions import NotFound
 
 User = get_user_model()
 
@@ -35,26 +36,26 @@ class MessageViewSet(viewsets.ModelViewSet):
         try:
             receiver = User.objects.get(id=receiver_id)
         except User.DoesNotExist:
-            return Response({'detail':'未找到消息接收者'},status=status.HTTP_404_NOT_FOUND)
+            raise NotFound('未找到消息接收者')
 
-        group_id = self.request.data.get('group_id')
+        group_id = self.request.data.get('group')
 
         # 群聊
         if group_id:
             try:
                 group = Group.objects.filter(id=group_id)
             except Group.DoesNotExist:
-                return Response({'detail':'未找到该群聊'},status.HTTP_404_NOT_FOUND)
-
+                raise NotFound('未找到该群聊')
         else :
             group = None
 
         serializer.save(sender=self.request.user, receiver=receiver, group=group)
+
     @action(methods=['get'],detail=False)
     def get_list(self, request):
         user = request.user
 
-        messages = Message.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('-created_at')
+        messages = Message.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('created_at')
         contacts = {}
 
         for msg in messages:

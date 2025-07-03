@@ -1,9 +1,13 @@
 from rest_framework import serializers
 from .models import Comment
+from users.serializers import UserSerializer
+from posts.serializers import PostSerializer
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    post = PostSerializer(read_only=True)
+    parent_comment = "self"  # 展示完整父评论信息
     children = serializers.SerializerMethodField()
-    parent_comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), allow_null=True)
 
     class Meta:
         model = Comment
@@ -12,5 +16,5 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_children(self, obj):
         if hasattr(obj, 'children') and obj.children.exists():
-            return CommentSerializer(obj.children.all(), many=True).data
+            return CommentSerializer(obj.children.all(), many=True,context=self.context).data
         return []

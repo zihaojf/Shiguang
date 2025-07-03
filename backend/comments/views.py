@@ -106,7 +106,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         """
         获取所有回复当前用户的评论
         """
-        queryset = Comment.objects.filter(parent_comment_user=request.user).order_by('-created_at')
+        queryset = Comment.objects.filter(Q(parent_comment__user=request.user)|Q(post__publisher=request.user)).order_by('-created_at')
 
         serializer = CommentSerializer(queryset, many=True)
         return Response(serializer.data)

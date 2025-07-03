@@ -84,7 +84,7 @@ export default defineComponent({
       ],
       newPassword: [
         { required: true, message: '请输入新密码', trigger: 'blur' },
-        { min: 6, message: '密码长度至少6位', trigger: 'blur' }
+        { min: 8, message: '密码长度至少8位', trigger: 'blur' }
       ],
       confirmPassword: [
         { required: true, message: '请确认新密码', trigger: 'blur' },
@@ -109,8 +109,8 @@ export default defineComponent({
 
         userId.value = userData.id
         usernameForm.currentUsername = userData.username
-      } catch (error: unknown) {
-        ElMessage.error('获取用户信息失败：', error)//error相关报错暂时不需理会，有时间再解决
+      } catch (error: any) {
+        ElMessage.error('获取用户信息失败：', error)
       }
     }
 
@@ -129,7 +129,7 @@ export default defineComponent({
           ElMessage.success('用户名更新成功')
           usernameForm.currentUsername = usernameForm.newUsername
           usernameForm.newUsername = ''
-        } catch (error) {
+        } catch (error:any) {
           const msg = error.response.data.username?.[0] || '用户名更新失败'
           ElMessage.error(msg)
         } finally {
@@ -146,10 +146,10 @@ export default defineComponent({
         try {
           loading.password = true
           const formData = new FormData()
-          formData.append('current_password', passwordForm.currentPassword)
+          formData.append('old_password', passwordForm.currentPassword)
           formData.append('new_password', passwordForm.newPassword)
 
-          await api.updateuser_profile(userId.value, formData)
+          await api.update_user_password(formData)
 
           ElMessage.success('密码更新成功')
           passwordForm.currentPassword = ''
@@ -165,11 +165,21 @@ export default defineComponent({
             clearTokens()
             router.push('/login')
           })
-        } catch (error) {
-          const msg = error.response.data.current_password?.[0]
-            || error.response.data.new_password?.[0]
-            || '密码更新失败'
-          ElMessage.error(msg)
+        } catch (error:any) {
+          const detail = error.response?.data?.data?.detail
+
+          if (Array.isArray(detail)) {
+            const flattenedErrors = detail
+              .flat(Infinity)                // 展开所有层级
+              .filter(msg => typeof msg === 'string') // 过滤非字符串
+            if (flattenedErrors.length > 0) {
+              ElMessage.error(flattenedErrors.join(' '))
+            } else {
+              ElMessage.error('密码更新失败')
+            }
+          } else {
+            ElMessage.error('密码更新失败')
+          }
         } finally {
           loading.password = false
         }

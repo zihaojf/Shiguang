@@ -21,7 +21,10 @@ class PostSerializer(serializers.ModelSerializer):
         return value
 
 class LikeSerializer(serializers.ModelSerializer):
+    post = PostSerializer(read_only=True)
+    liker = UserSerializer(read_only=True)
+
     class Meta:
         model = Like
-        fields = ['id','liker','create_at']
+        fields = ['id','liker','post','create_at']
 

@@ -1,13 +1,15 @@
 <template>
   <header class="header">
     <div class="header-left">
-      <div class="logo">logo</div>
+      <div class="logo">
+        <img :src="logo" class="logo">
+      </div>
 
       <div class="search-bar">
         <svg-icon name="search" /> <SearchIcon />
         <input
           type="text"
-          placeholder="搜索动态或用户"
+          placeholder="搜索动态"
           v-model="searchQuery"
           @keyup.enter="handleSearch"
         />
@@ -28,6 +30,12 @@
         </button>
       </nav-icon>
     </div>
+    <!--手机端下拉框-->
+    <select class="mobile-nav-select" v-model="selectedNav" @change="handleNavSelect" v-show="isMobile">
+      <option v-for="icon in navIcons" :key="icon.name" :value="icon.name">
+        {{ icon.label }}
+      </option>
+    </select>
 
     <div class="header-right">
 
@@ -80,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, type Component } from 'vue'
+import { onMounted, ref, type Component ,computed} from 'vue'
 import SearchIcon from './icons/SearchIcon.vue'
 import SettingIcon from './icons/SettingIcon.vue'
 import { defineAsyncComponent,watchEffect } from 'vue'
@@ -92,22 +100,37 @@ import api from '@/api/index'
 // 定义导航图标类型
 interface NavIcon {
   name: string
+  label: string
   component?: Component // 这里插入你的SVG组件
   active?:boolean
 }
 
 // 模拟导航图标数据
 const navIcons = ref<NavIcon[]>([
-  { name: 'Home', component: defineAsyncComponent(() => import('./icons/HomeIcon.vue'))},
-  { name: 'edit', component: defineAsyncComponent(() => import('./icons/EditIcon.vue'))},
-  { name: 'mail', component: defineAsyncComponent(() => import('./icons/MailIcon.vue'))},
-  { name: 'users', component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue'))},
+  { name: 'Home', label:'首页',component: defineAsyncComponent(() => import('./icons/HomeIcon.vue'))},
+  { name: 'edit', label:'发布', component: defineAsyncComponent(() => import('./icons/EditIcon.vue'))},
+  { name: 'mail', label:'提醒',component: defineAsyncComponent(() => import('./icons/MailIcon.vue'))},
+  { name: 'users', label:'好友',component: defineAsyncComponent(() => import('./icons/FriendsIcon.vue'))},
 ])
+
+// 当前选中的导航项
+const selectedNav = ref('Home')
+
+// 响应式判断是否是移动端
+const isMobile = computed(() => window.innerWidth <= 480)
+
+// 下拉框跳转
+const handleNavSelect = () => {
+  if (selectedNav.value) {
+    router.push({ name: selectedNav.value })
+  }
+}
 
 const searchQuery = ref('')
 const userAvatar = ref('')
 const isLogin = ref(false)
 const DefaultAvatar = new URL('@/assets/default-avatar.svg', import.meta.url).href
+const logo = new URL('@/assets/logo.png',import.meta.url).href
 
 //获取用户头像
 onMounted(async () => {
@@ -201,6 +224,10 @@ watchEffect(() => {
   border-bottom: 4px solid #f0f0f0;
   transition: all 0.3s ease-in-out;
   box-sizing: border-box;
+}
+
+.logo {
+  width: 90px;
 }
 
 .header-left {
@@ -317,6 +344,29 @@ watchEffect(() => {
   background-color: #ff9f43;
 }
 
+/*手机端下拉框*/
+/* 默认隐藏移动下拉框 */
+.mobile-nav-select {
+  display: none;
+  appearance: none; /* 去掉默认下拉箭头 */
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  outline: none;
+  color: #333;
+}
+
 /* 头像 */
 .avatar-trigger {
   cursor: pointer;
@@ -377,88 +427,61 @@ watchEffect(() => {
   box-sizing: border-box;
 }
 
-@media (max-width: 1199px) {
-  .header {
-    padding: 1.25rem 6rem;
-  }
-
-  .nav-icons {
-    gap: 5rem;
-  }
-
-  .search-bar input {
-    width: 150px;
-  }
-}
-
-@media (max-width: 768px) {
-  .header {
-    padding: 1rem 3rem;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-left,
-  .header-right {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .nav-icons {
-    width: 100%;
-    justify-content: space-around;
-    gap: 1.5rem;
-    margin: 0;
-  }
-
-  .search-bar input {
-    width: 100%;
-    font-size: 0.9rem;
-  }
-}
-
+/* 手机端显示下拉，隐藏图标导航 */
 @media (max-width: 480px) {
   .header {
-    flex-direction: column;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
     align-items: stretch;
-    padding: 0.8rem 1.2rem;
+    gap: 0.3rem; /* 减少元素间距 */
   }
 
-  .header-left,
-  .header-right {
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  .nav-icons {
-    width: 100%;
-    justify-content: space-around;
-    gap: 1rem;
-    margin: 0;
+  .logo{
+    width: 40px;
   }
 
   .search-bar {
-    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 20px;
+    padding: 0.3rem 0.5rem;
     width: 100%;
+    max-width: 200px;
+    box-sizing: border-box;
   }
 
   .search-bar input {
-    width: 100%;
+    flex-grow: 1;
     font-size: 0.85rem;
     padding: 0.4rem;
+    border: none;
+    background: transparent;
+    outline: none;
+    box-sizing: border-box;
+    min-width: 40px;
   }
 
-  .settings-btn {
-    width: 40px;
-    height: 40px;
+  .nav-icons {
+    display: none;
   }
 
-  .avatar-trigger {
-    width: 40px;
-    height: 40px;
+  .mobile-nav-select {
+    margin-left: 50px;
+    margin-top: 18px;
+    display: block;
+    width: 70px;
+    height: 35px;
+    font-size: 0.9rem;
+    background-position: right 10px center;
+    background-size: 16px;
   }
+
+  .avatar-trigger, .settings-btn {
+    width: 36px;
+    height: 36px;
+  }
+
 }
+
 </style>

@@ -2,7 +2,6 @@ from rest_framework import viewsets,status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from urllib3 import request
 
 from .models import Post,Like
 from .serializers import PostSerializer, LikeSerializer
@@ -143,8 +142,15 @@ class PostViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             return Response({'detail': '需要登录才能查看他人点赞情况'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        queryset = Like.objects.filter(post__user=user).order_by('-created_at')
+        queryset = Like.objects.filter(post__publisher=user).exclude(liker=user).order_by('-create_at')
         serializer = LikeSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated], url_path='my-posts')
+    def my_posts(self,request):
+        user = self.request.user
+        posts = Post.objects.filter(publisher=user).order_by('-created_at')
+        serializer = self.get_serializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 

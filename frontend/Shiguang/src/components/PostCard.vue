@@ -166,6 +166,7 @@ export default {
   display: flex;
   flex-direction: row;
   max-width: 1000px;
+  overflow: hidden;
   align-items: flex-start;
   background: #fff;
   padding: 16px;
@@ -189,11 +190,12 @@ export default {
 }
 
 .post-body{
-  max-width: 900px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   flex:1;
   gap:8px;
+  word-break: break-word;
 }
 
 

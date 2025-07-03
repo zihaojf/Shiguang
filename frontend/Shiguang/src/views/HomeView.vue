@@ -36,7 +36,8 @@ onMounted(async () => {
 .home {
   display: flex;
   margin-top: 100px;
-  width: 100vw;
+  width: 99vw;
+  box-sizing: border-box;
   justify-content: center;
   background-color: #f1f2f5;
 }
@@ -59,4 +60,20 @@ h1 {
   text-align: center;
   font-size: 16px;
 }
+
+@media (max-width: 768px) {
+  .home {
+    padding: 8px;
+    margin-top: 100px;
+  }
+
+  .posts-wrapper {
+    gap: 12px;
+  }
+
+  .error {
+    font-size: 14px;
+  }
+}
+
 </style>

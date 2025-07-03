@@ -138,8 +138,11 @@ export default defineComponent({
 <style scoped>
 .comments-container {
   max-width: 800px;
+  width: 100%;
   margin: 10px auto;
   padding: 20px;
+  box-sizing: border-box; /* padding不导致超出 */
+  overflow-x: hidden; /* 防止子元素意外撑开时横向滚动 */
 }
 
 .comments-list{
@@ -190,6 +193,10 @@ export default defineComponent({
   border: 1px solid #eee;
   border-radius: 8px;
   padding: 15px;
+  max-width: 100%; /* 不超过父容器 */
+  word-break: break-word; /* 防止长单词撑破布局 */
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .comment-main {

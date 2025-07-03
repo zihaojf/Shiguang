@@ -193,6 +193,11 @@ export default {
     return apiClient.patch(`/api/users/${userId}/`, data)
   },
 
+  //修改密码接口
+  update_user_password(data:FormData){
+    return apiClient.post(`/api/users/change-password/`,data)
+  },
+
 
   // 获取动态列表
 async getPosts(): Promise<Post[]> {
@@ -215,6 +220,11 @@ async getPosts(): Promise<Post[]> {
   //获取动态详情
   getPostDetail(id: number) {
   return apiClient.get(`/api/posts/${id}/`)
+},
+
+//获取当前用户动态列表
+getUserPosts() {
+  return apiClient.get(`/api/posts/my-posts/`)
 },
 
 

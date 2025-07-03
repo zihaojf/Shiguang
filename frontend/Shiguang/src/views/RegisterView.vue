@@ -123,22 +123,29 @@ export default defineComponent({
         // 自动登录或跳转到登录页
         router.push('/login')
       } catch (error: unknown) {
-        let errorMessage = '注册失败'
+        // 清空之前的错误提示
+        errors.username = ''
+        errors.password = ''
 
         if (typeof error === 'object' && error !== null && 'response' in error) {
           const apiError = error as { response: { data: any } }
-          if (apiError.response.data.username) {
-            errorMessage = `用户名已存在: ${apiError.response.data.username.join(', ')}`
-          } else if (apiError.response.data.password) {
-            errorMessage = `密码不符合要求: ${apiError.response.data.password.join(', ')}`
+          const errorData = apiError.response.data.data
+
+          if (errorData.username) {
+            errors.username = errorData.username.join('，')
           }
-        } else if (error instanceof Error) {
-          errorMessage = error.message
+
+          if (errorData.password) {
+            errors.password = errorData.password.join('，')
+          }
+
+          if (!errorData.username && !errorData.password) {
+            ElMessage.error('注册失败，请检查输入或稍后再试。')
+          }
+
+        } else {
+          ElMessage.error('请求异常，请稍后重试。')
         }
-
-        console.log(errorMessage)
-
-        ElMessage.error(errorMessage)
       } finally {
         loading.value = false
       }

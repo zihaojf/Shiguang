@@ -32,21 +32,10 @@
         </div>
       </div>
 
-      <div v-if="topPosts.length > 0" class="profile-posts">
-        <h3 class="posts-title">最受欢迎的帖子</h3>
-        <div class="post-list">
-          <div v-for="post in topPosts" :key="post.id" class="post-item">
-            <router-link :to="`/post/${post.id}`" class="post-link">
-              <h4 class="post-title">{{ post.title || '无标题' }}</h4>
-              <p class="post-content">{{ truncateContent(post.content) }}</p>
-              <div class="post-stats">
-                <span class="likes">❤️ {{ post.likes_count }} 赞</span>
-                <span class="comments">💬 {{ post.comments_count }} 评论</span>
-              </div>
-            </router-link>
-          </div>
-        </div>
+      <div class="posts-wrapper">
+        <PostCard v-for="post in posts" :key="post.id" :post="post" />
       </div>
+
     </div>
   </div>
 </template>
@@ -55,6 +44,10 @@
 import { defineComponent, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '@/api'
+import type { PostData } from '@/api/index.ts'
+import PostCard from '@/components/PostCard.vue'
+
+
 
 interface User {
   id: number
@@ -78,6 +71,9 @@ interface Post {
 
 export default defineComponent({
   name: 'ProfileView',
+  components: {
+  PostCard
+  },
   props: {
     userId: {
       type: Number,
@@ -95,8 +91,8 @@ export default defineComponent({
       birthday: null
     })
 
-    const topPosts = ref<Post[]>([])
     const loading = ref(false)
+    const posts = ref<PostData[]>([])
 
     const fetchUserProfile = async () => {
       try {
@@ -114,14 +110,9 @@ export default defineComponent({
 
     const fetchTopPosts = async () => {
       try {
-        //按点赞数排序
-        const response = await api.getUserPosts({
-          params: {
-            ordering: '-likes_count',
-            page_size: 3
-          }
-        })
-        topPosts.value = response.data.results || response.data.slice(0, 3)
+        const response = await api.getUserPosts()
+        posts.value = response.data.data || response.data.slice(0, 3)
+        console.log('posts:',posts.value)
       } catch (error) {
         console.error('Error fetching top posts:', error)
       }
@@ -159,7 +150,7 @@ export default defineComponent({
 
     return {
       user,
-      topPosts,
+      posts,
       loading,
       formatDate,
       formatBirthday,
